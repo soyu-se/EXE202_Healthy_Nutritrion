@@ -7,9 +7,8 @@ namespace HealthyNutritionApp.Application.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
+        public string Id { get; set; }
 
-        [BsonRepresentation(BsonType.String)]
         public string UserId { get; set; }
 
         public List<CartItem> Items { get; set; }

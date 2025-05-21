@@ -7,12 +7,16 @@ namespace HealthyNutritionApp.Application.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId Id { get; set; }
+        public string Id { get; set; }
 
-        [BsonRepresentation(BsonType.String)]
         public string Name { get; set; }
 
-        [BsonRepresentation(BsonType.String)]
+        // "goal" hoặc "product"
+        public string Type { get; set; }
+
         public string Description { get; set; }
+
+        [BsonRepresentation(BsonType.DateTime)]
+        public DateTime CreateAt { get; set; }
     }
 }

@@ -6,19 +6,17 @@ namespace HealthyNutritionApp.Application.Models
     public class Reviews
     {
         [BsonId]
-        [BsonElement("_id"), BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId Id { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
 
         [BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId ProductId { get; set; }
+        public string ProductId { get; set; }
 
         [BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId UserId { get; set; }
+        public string UserId { get; set; }
 
-        [BsonRepresentation(BsonType.Double)]
         public double Rating { get; set; }
 
-        [BsonRepresentation(BsonType.String)]
         public string Comment { get; set; }
 
         [BsonRepresentation(BsonType.DateTime)]

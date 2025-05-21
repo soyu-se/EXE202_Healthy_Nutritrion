@@ -7,12 +7,10 @@ namespace HealthyNutritionApp.Application.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId ProductId { get; set; }
+        public string ProductId { get; set; }
 
-        [BsonRepresentation(BsonType.Int32)]
         public int Quantity { get; set; }
 
-        [BsonRepresentation(BsonType.Decimal128)]
         public decimal PriceAtOrderTime { get; set; }
     }
 }
