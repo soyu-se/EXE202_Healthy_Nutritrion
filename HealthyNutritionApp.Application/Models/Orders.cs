@@ -11,15 +11,13 @@ namespace HealthyNutritionApp.Application.Models
         public string Id { get; set; }
 
         [BsonRepresentation(BsonType.ObjectId)]
-        public string UserId { get; set; } = string.Empty;
+        public string UserId { get; set; }
 
         public List<OrderItems> Items { get; set; }
 
         public decimal TotalAmount { get; set; }
 
         public string Status { get; set; }
-
-        public string PaymentStatus { get; set; }
 
         public string ShippingAddress { get; set; }
 

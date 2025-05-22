@@ -7,17 +7,15 @@ namespace HealthyNutritionApp.Application.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
+        public string Id { get; set; }
 
-        public required string FullName { get; set; }
+        public string FullName { get; set; }
 
-        public string? Email { get; set; }
+        public string Email { get; set; }
 
-        public required string HashedPassword { get; set; }
+        public string HashedPassword { get; set; }
 
-        public required string Phone { get; set; }
-
-        public required string Address { get; set; }
+        public string Address { get; set; }
 
         [BsonRepresentation(BsonType.DateTime)]
         public DateTime CreatedAt { get; set; }

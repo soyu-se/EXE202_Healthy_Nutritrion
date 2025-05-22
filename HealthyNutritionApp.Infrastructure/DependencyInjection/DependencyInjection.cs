@@ -1,11 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Identity;
-using HealthyNutritionApp.Application.Mapper;
-using HealthyNutritionApp.Application.DatabaseContext;
+﻿using HealthyNutritionApp.Application.DatabaseContext;
 using HealthyNutritionApp.Application.Interfaces;
+using HealthyNutritionApp.Application.Mapper;
 using HealthyNutritionApp.Infrastructure.Implements;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 
 namespace HealthyNutritionApp.Infrastructure.DependencyInjection

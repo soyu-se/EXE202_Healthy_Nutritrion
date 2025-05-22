@@ -7,13 +7,13 @@ namespace HealthyNutritionApp.Application.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
+        public string Id { get; set; }
 
-        public required string Name { get; set; }
+        public string Name { get; set; }
 
-        public required string Description { get; set; }
+        public string Description { get; set; }
 
-        public required double Price { get; set; }
+        public double Price { get; set; }
 
         [BsonRepresentation(BsonType.ObjectId)]
         public List<string> CategoryIds { get; set; }
@@ -27,7 +27,5 @@ namespace HealthyNutritionApp.Application.Models
         public List<string> ImageUrls { get; set; }
 
         public NutritionFact NutritionFact { get; set; }
-
-        public bool IsFeatured { get; set; }
     }
 }
