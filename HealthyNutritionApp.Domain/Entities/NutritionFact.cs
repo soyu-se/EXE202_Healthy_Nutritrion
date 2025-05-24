@@ -1,4 +1,4 @@
-﻿namespace HealthyNutritionApp.Application.Models
+﻿namespace HealthyNutritionApp.Domain.Entities
 {
     public class NutritionFact
     {

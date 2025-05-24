@@ -1,7 +1,7 @@
 ﻿using CloudinaryDotNet.Actions;
 using HealthyNutritionApp.Application.Dto;
 using HealthyNutritionApp.Application.Interfaces;
-using HealthyNutritionApp.Application.Models;
+using HealthyNutritionApp.Domain.Entities;
 using HealthyNutritionApp.Domain.Enums;
 using HealthyNutritionApp.Domain.Utils;
 using Microsoft.AspNetCore.Http;

@@ -1,6 +1,6 @@
 ﻿using HealthyNutritionApp.Application.Dto;
 using HealthyNutritionApp.Application.Interfaces;
-using HealthyNutritionApp.Application.Models;
+using HealthyNutritionApp.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
 using System.Security.Claims;
