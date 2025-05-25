@@ -13,11 +13,11 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Authentication
         private readonly IJsonWebToken _jsonWebToken = jsonWebToken;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-        public string HashPassword(string password)
+        private string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);
         }
-        public bool VerifyPassword(string password, string hashedPassword)
+        private bool VerifyPassword(string password, string hashedPassword)
         {
             return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }

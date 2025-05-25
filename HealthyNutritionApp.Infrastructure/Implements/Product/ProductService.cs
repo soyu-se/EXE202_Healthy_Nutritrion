@@ -1,0 +1,159 @@
+﻿using AutoMapper;
+using CloudinaryDotNet.Actions;
+using HealthyNutritionApp.Application.Dto;
+using HealthyNutritionApp.Application.Dto.Product;
+using HealthyNutritionApp.Application.Interfaces;
+using HealthyNutritionApp.Application.Interfaces.Product;
+using HealthyNutritionApp.Domain.Entities;
+using HealthyNutritionApp.Domain.Enums;
+using HealthyNutritionApp.Domain.Utils;
+using HealthyNutritionApp.Infrastructure.ThirdPartyService.Cloudinaries;
+using MongoDB.Driver;
+using MongoDB.Driver.Linq;
+
+namespace HealthyNutritionApp.Infrastructure.Implements.Product
+{
+    public class ProductService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService) : IProductService
+    {
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IMapper _mapper = mapper;
+        private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
+
+        public async Task<IEnumerable<ProductDto>> GetProductsAsync(ProductFilterDto productFilterDto, int offset = 1, int limit = 10)
+        {
+            // Bắt đầu với truy vấn cơ bản
+            IQueryable<Products> query = _unitOfWork.GetCollection<Products>().AsQueryable();
+
+            // Kiểm tra nếu có bộ lọc tìm kiếm
+            if (!string.IsNullOrEmpty(productFilterDto.SearchTerm))
+            {
+                query = query.Where(p => p.Name.Contains(productFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase) ||
+                                         p.Description.Contains(productFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase));
+            }
+
+            // Lọc theo danh mục
+            if (productFilterDto.CategoryIds != null && productFilterDto.CategoryIds.Count > 0)
+            {
+                query = query.Where(p => p.CategoryIds != null && p.CategoryIds.Any(c => productFilterDto.CategoryIds.Contains(c)));
+            }
+
+            // Lọc theo thương hiệu
+            if (!string.IsNullOrEmpty(productFilterDto.Brand))
+            {
+                query = query.Where(p => p.Brand.Contains(productFilterDto.Brand, StringComparison.CurrentCultureIgnoreCase));
+            }
+
+            // Lọc theo thẻ
+            if (productFilterDto.Tags != null && productFilterDto.Tags.Count > 0)
+            {
+                query = query.Where(p => p.Tags != null && p.Tags.Any(t => productFilterDto.Tags.Contains(t)));
+            }
+
+            // Lọc theo khoảng giá
+            if (productFilterDto.MinPrice.HasValue)
+            {
+                query = query.Where(p => p.Price >= productFilterDto.MinPrice.Value);
+            }
+            if (productFilterDto.MaxPrice.HasValue)
+            {
+                query = query.Where(p => p.Price <= productFilterDto.MaxPrice.Value);
+            }
+
+            // Lọc theo số lượng tồn kho
+            if (productFilterDto.MinStockQuantity.HasValue)
+            {
+                query = query.Where(p => p.StockQuantity >= productFilterDto.MinStockQuantity.Value);
+            }
+
+            if (productFilterDto.MaxStockQuantity.HasValue)
+            {
+                query = query.Where(p => p.StockQuantity <= productFilterDto.MaxStockQuantity.Value);
+            }
+
+            // Phân trang
+            query = query.Skip((offset - 1) * limit).Take(limit);
+
+            // Thực thi truy vấn và chuyển đổi sang DTO
+            IEnumerable<Products> products = await query.ToListAsync();
+            IEnumerable<ProductDto> productsDto = _mapper.Map<IEnumerable<ProductDto>>(products);
+
+            return productsDto;
+        }
+
+        public async Task<ProductDto> GetProductByIdAsync(string id)
+        {
+            Products products = await _unitOfWork.GetCollection<Products>().Find(p => p.Id == id).FirstOrDefaultAsync() 
+                ?? throw new Exception("Product not found");
+
+            ProductDto productDto = _mapper.Map<ProductDto>(products);
+
+            return productDto;
+        }
+
+        public async Task CreateProductAsync(CreateProductDto productDto)
+        {
+            Products product = new()
+            {
+                Name = productDto.Name,
+                Description = productDto.Description,
+                Price = productDto.Price,
+                CategoryIds = productDto.CategoryIds,
+                Brand = productDto.Brand,
+                Tags = productDto.Tags,
+                StockQuantity = productDto.StockQuantity,
+                ImageUrls = productDto.ImageUrls,
+                NutritionFact = productDto.NutritionFact
+            };
+
+            await _unitOfWork.GetCollection<Products>().InsertOneAsync(product);
+        }
+
+        public async Task<List<Products>> GetProductsByPriceRangeAsync(double minPrice, double maxPrice)
+        {
+            return await _unitOfWork.GetCollection<Products>()
+                .Find(p => p.Price >= minPrice && p.Price <= maxPrice)
+                .ToListAsync();
+        }
+
+
+        public async Task UpdateProductAsync(string id, UpdateProductDto updateProductDto)
+        {
+            Products product = await _unitOfWork.GetCollection<Products>().Find(p => p.Id == id).FirstOrDefaultAsync() 
+                ?? throw new Exception("Product not found");
+
+            UpdateDefinitionBuilder<Products> updateBuilder = Builders<Products>.Update;
+
+            List<UpdateDefinition<Products>> updates =
+            [
+                updateBuilder.Set(p => p.Name, updateProductDto.Name),
+                updateBuilder.Set(p => p.Description, updateProductDto.Description),
+                updateBuilder.Set(p => p.Price, updateProductDto.Price),
+                updateBuilder.Set(p => p.CategoryIds, updateProductDto.CategoryIds),
+                updateBuilder.Set(p => p.Brand, updateProductDto.Brand),
+                updateBuilder.Set(p => p.Tags, updateProductDto.Tags),
+                updateBuilder.Set(p => p.StockQuantity, updateProductDto.StockQuantity),
+                updateBuilder.Set(p => p.NutritionFact, updateProductDto.NutritionFact),
+                updateBuilder.Set(p => p.UpdatedAt, TimeControl.GetUtcPlus7Time())
+            ];
+
+            // Cập nhật Image Field nếu có
+            if (updateProductDto.Image is not null)
+            {
+                // Upload ảnh lên Cloudinary
+                ImageUploadResult result = _cloudinaryService.UploadImage(updateProductDto.Image, ImageTag.Users_Profile);
+
+                // Cập nhật URL cho ảnh
+                updates.Add(updateBuilder.Set(p => p.ImageUrls[0], result.SecureUrl.AbsoluteUri));
+            }
+
+            UpdateDefinition<Products> updateDefinition = updateBuilder.Combine(updates);
+
+            await _unitOfWork.GetCollection<Products>().FindOneAndUpdateAsync(product => product.Id == id, updateDefinition);
+        }
+
+        public async Task DeleteProductAsync(string id)
+        {
+            await _unitOfWork.GetCollection<Products>().DeleteOneAsync(p => p.Id == id);
+        }
+    }
+}

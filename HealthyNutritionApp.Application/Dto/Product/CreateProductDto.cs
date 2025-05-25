@@ -1,21 +1,15 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson;
+﻿using HealthyNutritionApp.Domain.Entities;
 
-namespace HealthyNutritionApp.Domain.Entities
+namespace HealthyNutritionApp.Application.Dto.Product
 {
-    public class Products
+    public class CreateProductDto
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
-
         public string Name { get; set; }
 
         public string Description { get; set; }
 
         public double Price { get; set; }
 
-        [BsonRepresentation(BsonType.ObjectId)]
         public List<string> CategoryIds { get; set; }
 
         public string Brand { get; set; }
@@ -27,8 +21,5 @@ namespace HealthyNutritionApp.Domain.Entities
         public List<string> ImageUrls { get; set; }
 
         public NutritionFact NutritionFact { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
     }
 }
