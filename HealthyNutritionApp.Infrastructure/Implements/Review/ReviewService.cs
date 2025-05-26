@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HealthyNutritionApp.Application.Dto.Review;
+using HealthyNutritionApp.Application.Exceptions;
 using HealthyNutritionApp.Application.Interfaces;
 using HealthyNutritionApp.Application.Interfaces.Review;
 using HealthyNutritionApp.Domain.Entities;
@@ -45,7 +46,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Review
             query = query.Skip((offset - 1) * limit).Take(limit);
 
             // Thực hiện truy vấn và chuyển đổi kết quả sang danh sách ReviewDto
-            IEnumerable<Reviews> reviews = await query.ToListAsync() ?? throw new Exception("No reviews found");
+            IEnumerable<Reviews> reviews = await query.ToListAsync() ?? throw new NotFoundCustomException("No reviews found");
             IEnumerable<ReviewDto> reviewsDto = _mapper.Map<IEnumerable<ReviewDto>>(reviews);
 
             return reviewsDto;
@@ -55,7 +56,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Review
         {
             // Lấy đánh giá theo ID
             Reviews? review = await _unitOfWork.GetCollection<Reviews>().Find(r => r.Id == reviewId).FirstOrDefaultAsync()
-                ?? throw new Exception("Review not found");
+                ?? throw new NotFoundCustomException("Review not found");
             // Chuyển đổi sang ReviewDto
             ReviewDto reviewDto = _mapper.Map<ReviewDto>(review);
             return reviewDto;
@@ -69,7 +70,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Review
             // Phân trang
             query = query.Skip((offset - 1) * limit).Take(limit);
             // Thực hiện truy vấn và chuyển đổi kết quả sang danh sách ReviewDto
-            IEnumerable<Reviews> reviews = await query.ToListAsync() ?? throw new Exception("No reviews found for this product");
+            IEnumerable<Reviews> reviews = await query.ToListAsync() ?? throw new NotFoundCustomException("No reviews found for this product");
             IEnumerable<ReviewDto> reviewsDto = _mapper.Map<IEnumerable<ReviewDto>>(reviews);
             return reviewsDto;
         }
@@ -82,7 +83,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Review
             // Phân trang
             query = query.Skip((offset - 1) * limit).Take(limit);
             // Thực hiện truy vấn và chuyển đổi kết quả sang danh sách ReviewDto
-            IEnumerable<Reviews> reviews = await query.ToListAsync() ?? throw new Exception("No reviews found for this user");
+            IEnumerable<Reviews> reviews = await query.ToListAsync() ?? throw new NotFoundCustomException("No reviews found for this user");
             IEnumerable<ReviewDto> reviewsDto = _mapper.Map<IEnumerable<ReviewDto>>(reviews);
             return reviewsDto;
         }
@@ -114,7 +115,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Review
 
             if (result.ModifiedCount == 0)
             {
-                throw new Exception("Review not found or no changes made");
+                throw new NotFoundCustomException("Review not found or no changes made");
             }
         }
 
@@ -126,7 +127,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Review
 
             if (result.DeletedCount == 0)
             {
-                throw new Exception("Review not found");
+                throw new NotFoundCustomException("Review not found");
             }
         }
     }

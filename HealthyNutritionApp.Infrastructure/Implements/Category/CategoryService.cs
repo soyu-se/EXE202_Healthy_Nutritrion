@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HealthyNutritionApp.Application.Dto.Category;
+using HealthyNutritionApp.Application.Exceptions;
 using HealthyNutritionApp.Application.Interfaces;
 using HealthyNutritionApp.Application.Interfaces.Category;
 using HealthyNutritionApp.Domain.Entities;
@@ -64,7 +65,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Category
             // Lấy danh mục theo Id
             Categories category = await _unitOfWork.GetCollection<Categories>()
                 .Find(c => c.Id == id)
-                .FirstOrDefaultAsync() ?? throw new Exception("Category Not Found");
+                .FirstOrDefaultAsync() ?? throw new NotFoundCustomException("Category Not Found");
             return _mapper.Map<CategoryDto>(category);
         }
 
@@ -87,7 +88,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Category
             // Implementation for updating a category
             Categories category = await _unitOfWork.GetCollection<Categories>()
                 .Find(c => c.Id == id)
-                .FirstOrDefaultAsync() ?? throw new Exception("Category Not Found");
+                .FirstOrDefaultAsync() ?? throw new NotFoundCustomException("Category Not Found");
 
             UpdateDefinition<Categories> update = Builders<Categories>.Update
                 .Set(c => c.Name, categoryDto.Name)
@@ -105,7 +106,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Category
                 .DeleteOneAsync(c => c.Id == id);
             if (result.DeletedCount == 0)
             {
-                throw new Exception("Category Not Found");
+                throw new NotFoundCustomException("Category Not Found");
             }
         }
     }

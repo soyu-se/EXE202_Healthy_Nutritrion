@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HealthyNutritionApp.Controllers.Review
 {
-    [Route("api/reviews")]
+    [Route("api/v1/reviews")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] //"Bearer"
     public class ReviewController(IReviewService reviewService) : ControllerBase

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HealthyNutritionApp.Controllers.Category
 {
-    [Route("api/categories")]
+    [Route("api/v1/categories")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] //"Bearer"
     public class CategoryController(ICategoryService categoryService) : ControllerBase

@@ -2,6 +2,7 @@
 using CloudinaryDotNet.Actions;
 using HealthyNutritionApp.Application.Dto;
 using HealthyNutritionApp.Application.Dto.Product;
+using HealthyNutritionApp.Application.Exceptions;
 using HealthyNutritionApp.Application.Interfaces;
 using HealthyNutritionApp.Application.Interfaces.Product;
 using HealthyNutritionApp.Domain.Entities;
@@ -83,7 +84,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Product
         public async Task<ProductDto> GetProductByIdAsync(string id)
         {
             Products products = await _unitOfWork.GetCollection<Products>().Find(p => p.Id == id).FirstOrDefaultAsync() 
-                ?? throw new Exception("Product not found");
+                ?? throw new NotFoundCustomException("Product not found");
 
             ProductDto productDto = _mapper.Map<ProductDto>(products);
 
@@ -119,7 +120,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Product
         public async Task UpdateProductAsync(string id, UpdateProductDto updateProductDto)
         {
             Products product = await _unitOfWork.GetCollection<Products>().Find(p => p.Id == id).FirstOrDefaultAsync() 
-                ?? throw new Exception("Product not found");
+                ?? throw new NotFoundCustomException("Product not found");
 
             UpdateDefinitionBuilder<Products> updateBuilder = Builders<Products>.Update;
 

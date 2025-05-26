@@ -1,4 +1,5 @@
 ﻿using HealthyNutritionApp.Application.Dto;
+using HealthyNutritionApp.Application.Exceptions;
 using HealthyNutritionApp.Application.Interfaces;
 using HealthyNutritionApp.Domain.Entities;
 using Microsoft.AspNetCore.Http;
@@ -37,18 +38,18 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Authentication
             bool isConfirmedPassword = password == confirmPassword;
             if (!isConfirmedPassword)
             {
-                throw new Exception("Password and Confirm Password do not match");
+                throw new BadRequestCustomException("Password and Confirm Password do not match");
             }
 
             // Kiểm tra account đã tồn tại hay chưa
             if(await IsEmailExisted(email))
             {
-                throw new Exception("Account already exists");
+                throw new ConflictCustomException("Account already exists");
             }
 
             if(await IsPhoneNumberExisted(phoneNumber))
             {
-                throw new Exception("Phone number already exists");
+                throw new ConflictCustomException("Phone number already exists");
             }
 
             // Tạo tài khoản mới
@@ -94,13 +95,13 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Authentication
             // Kiểm tra tài khoản có tồn tại hay không
             Users user = await _unitOfWork.GetCollection<Users>()
                 .Find(user => user.Email == email)
-                .FirstOrDefaultAsync() ?? throw new Exception("Account does not exist");
+                .FirstOrDefaultAsync() ?? throw new NotFoundCustomException("Account does not exist");
 
             // Kiểm tra mật khẩu có đúng hay không
             bool isPasswordValid = VerifyPassword(password, user.Password);
             if (!isPasswordValid)
             {
-                throw new Exception("Invalid password");
+                throw new BadRequestCustomException("Invalid password");
             }
 
             // Tạo token cho người dùng
@@ -142,19 +143,19 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Authentication
             // Kiểm tra UserId
             if (string.IsNullOrEmpty(userId))
             {
-                throw new Exception("Your session is limit, you must login again to edit profile!");
+                throw new UnauthorizedCustomException("Your session is limit, you must login again to edit profile!");
             }
 
             // Kiểm tra tài khoản có tồn tại hay không
             Users user = await _unitOfWork.GetCollection<Users>()
                 .Find(user => user.Id == userId)
-                .FirstOrDefaultAsync() ?? throw new Exception("Account does not exist");
+                .FirstOrDefaultAsync() ?? throw new NotFoundCustomException("Account does not exist");
 
             // Kiểm tra mật khẩu cũ có đúng hay không
             bool isOldPasswordValid = VerifyPassword(oldPassword, user.Password);
             if (!isOldPasswordValid)
             {
-                throw new Exception("Invalid old password");
+                throw new BadRequestCustomException("Invalid old password");
             }
 
             // Mã hóa mật khẩu mới

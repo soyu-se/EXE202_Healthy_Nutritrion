@@ -1,4 +1,5 @@
-﻿using HealthyNutritionApp.Infrastructure.DependencyInjection;
+﻿using HealthyNutritionApp.Filters;
+using HealthyNutritionApp.Infrastructure.DependencyInjection;
 using Serilog;
 namespace HealthyNutritionApp
 {
@@ -13,7 +14,14 @@ namespace HealthyNutritionApp
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers(options =>
+            {
+                // Add a global exception filter to handle exceptions
+                //options.Filters.Add(new Filters.BaseExceptionFilter(
+                //    builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Filters.BaseExceptionFilter>>()));
+
+                options.Filters.Add<BaseExceptionFilter>(); // Uncomment if you want to use the custom exception filter
+            });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -24,7 +32,7 @@ namespace HealthyNutritionApp
             {
                 options.AddPolicy("AllowSpecificOrigin",
                     builder => builder
-                        .WithOrigins("http://localhost:5173")
+                        .WithOrigins("http://localhost:3000")
                         .WithOrigins(Environment.GetEnvironmentVariable("HEALTHY_NUTRITION_CLIENT_URL") ?? throw new Exception("ClientUrl connect fail")) //throw new InvalidDataCustomException("SPOTIFYPOOL_CLIENT_URL is not set");  ////SERI LOG
                         .AllowAnyHeader()
                         .AllowAnyMethod()
