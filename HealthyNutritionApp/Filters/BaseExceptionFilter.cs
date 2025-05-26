@@ -3,6 +3,7 @@ using HealthyNutritionApp.Domain.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.WebUtilities;
+using Serilog;
 
 namespace HealthyNutritionApp.Filters
 {
@@ -59,7 +60,9 @@ namespace HealthyNutritionApp.Filters
             if (context.Exception is BaseException appEx)
             {
                 // Fix for CA2254: Use a constant message template
-                _logger.LogWarning(appEx, "=============================================================\nSystem error occurred at UTC+7 time: {Time}", TimeControl.GetUtcPlus7Time());
+                //_logger.LogWarning(appEx, "=============================================================\nSystem error occurred at UTC+7 time: {Time}", TimeControl.GetUtcPlus7Time());
+                var exception = context.Exception;
+                Log.Error(exception, exception.Message);
                 problem = new ProblemDetails
                 {
                     Title = ReasonPhrases.GetReasonPhrase(appEx.StatusCode),
@@ -73,7 +76,9 @@ namespace HealthyNutritionApp.Filters
             }
             else
             {
-                _logger.LogError(context.Exception, "=============================================================\nSystem error occurred at UTC+7 time: {Time}", TimeControl.GetUtcPlus7Time());
+                //_logger.LogError(context.Exception, "=============================================================\nSystem error occurred at UTC+7 time: {Time}", TimeControl.GetUtcPlus7Time());
+                var exception = context.Exception;
+                Log.Fatal(exception, exception.Message);
                 problem = new ProblemDetails
                 {
                     Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status500InternalServerError), // Default to 500 Internal Server Error

@@ -33,7 +33,7 @@ namespace HealthyNutritionApp
                 options.AddPolicy("AllowSpecificOrigin",
                     builder => builder
                         .WithOrigins("http://localhost:3000")
-                        .WithOrigins(Environment.GetEnvironmentVariable("HEALTHY_NUTRITION_CLIENT_URL") ?? throw new Exception("ClientUrl connect fail")) //throw new InvalidDataCustomException("SPOTIFYPOOL_CLIENT_URL is not set");  ////SERI LOG
+                        .WithOrigins(Environment.GetEnvironmentVariable("HEALTHY_NUTRITION_CLIENT_URL") ?? throw new Exception("ClientUrl connect fail"))
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials());
