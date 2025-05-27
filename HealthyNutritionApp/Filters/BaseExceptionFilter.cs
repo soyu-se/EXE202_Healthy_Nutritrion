@@ -46,22 +46,19 @@ namespace HealthyNutritionApp.Filters
         //}
         #endregion
 
-        private readonly ILogger<BaseExceptionFilter> _logger;
-
-        public BaseExceptionFilter(ILogger<BaseExceptionFilter> logger)
+        public BaseExceptionFilter()
         {
-            _logger = logger;
         }
 
         public void OnException(ExceptionContext context)
         {
             ProblemDetails problem;
+            Exception exception = context.Exception;
 
             if (context.Exception is BaseException appEx)
             {
-                // Fix for CA2254: Use a constant message template
                 //_logger.LogWarning(appEx, "=============================================================\nSystem error occurred at UTC+7 time: {Time}", TimeControl.GetUtcPlus7Time());
-                var exception = context.Exception;
+                
                 Log.Error(exception, exception.Message);
                 problem = new ProblemDetails
                 {
@@ -77,17 +74,17 @@ namespace HealthyNutritionApp.Filters
             else
             {
                 //_logger.LogError(context.Exception, "=============================================================\nSystem error occurred at UTC+7 time: {Time}", TimeControl.GetUtcPlus7Time());
-                var exception = context.Exception;
+
                 Log.Fatal(exception, exception.Message);
                 problem = new ProblemDetails
                 {
                     Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status500InternalServerError), // Default to 500 Internal Server Error
                     Status = StatusCodes.Status500InternalServerError,
-                    Detail = context.Exception.Message,
+                    Detail = exception.Message,
                     Type = "Lỗi này do chưa config hoặc chưa xác định được"
                 };
 
-                context.HttpContext.Response.StatusCode = 999;
+                context.HttpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
             }
 
             context.Result = new ObjectResult(problem) { StatusCode = problem.Status };
