@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace HealthyNutritionApp.Application.Interfaces
+namespace HealthyNutritionApp.Application.Interfaces.Authentication
 {
     public interface IJsonWebToken
     {

@@ -1,5 +1,6 @@
-﻿using HealthyNutritionApp.Application.Dto;
-using HealthyNutritionApp.Application.Interfaces;
+﻿using HealthyNutritionApp.Application.Dto.Account;
+using HealthyNutritionApp.Application.Dto.Authentication;
+using HealthyNutritionApp.Application.Interfaces.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using HealthyNutritionApp.Application.Dto.PaginatedResult;
 using HealthyNutritionApp.Application.Dto.Review;
 using HealthyNutritionApp.Application.Exceptions;
 using HealthyNutritionApp.Application.Interfaces;
@@ -15,7 +16,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Review
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<IEnumerable<ReviewDto>> GetReviewsAsync(ReviewFilterDto reviewFilterDto, int offset = 1, int limit = 10)
+        public async Task<PaginatedResult<ReviewDto>> GetReviewsAsync(ReviewFilterDto reviewFilterDto, int offset = 1, int limit = 10)
         {
             // Phân trang và lấy tất cả đánh giá
             IQueryable<Reviews> query = _unitOfWork.GetCollection<Reviews>().AsQueryable();
@@ -45,11 +46,21 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Review
             // Phân trang
             query = query.Skip((offset - 1) * limit).Take(limit);
 
+            long totalCount = await _unitOfWork.GetCollection<Reviews>()
+                .CountDocumentsAsync(r => string.IsNullOrEmpty(reviewFilterDto.Comment) || r.Comment.Contains(reviewFilterDto.Comment, StringComparison.CurrentCultureIgnoreCase) &&
+                                          (string.IsNullOrEmpty(reviewFilterDto.ProductId) || r.ProductId == reviewFilterDto.ProductId) &&
+                                          (string.IsNullOrEmpty(reviewFilterDto.UserId) || r.UserId == reviewFilterDto.UserId) &&
+                                          (reviewFilterDto.Rating == default || r.Rating == reviewFilterDto.Rating));
+
             // Thực hiện truy vấn và chuyển đổi kết quả sang danh sách ReviewDto
             IEnumerable<Reviews> reviews = await query.ToListAsync() ?? throw new NotFoundCustomException("No reviews found");
             IEnumerable<ReviewDto> reviewsDto = _mapper.Map<IEnumerable<ReviewDto>>(reviews);
 
-            return reviewsDto;
+            return new PaginatedResult<ReviewDto>
+            {
+                Items = reviewsDto,
+                TotalCount = totalCount,
+            };
         }
 
         public async Task<ReviewDto> GetReviewByIdAsync(string reviewId)
@@ -62,30 +73,49 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Review
             return reviewDto;
         }
 
-        public async Task<IEnumerable<ReviewDto>> GetReviewsByProductIdAsync(string productId, int offset = 1, int limit = 10)
+        public async Task<PaginatedResult<ReviewDto>> GetReviewsByProductIdAsync(string productId, int offset = 1, int limit = 10)
         {
             // Lấy tất cả đánh giá theo ProductId
             IQueryable<Reviews> query = _unitOfWork.GetCollection<Reviews>().AsQueryable()
                 .Where(r => r.ProductId == productId);
+
             // Phân trang
             query = query.Skip((offset - 1) * limit).Take(limit);
+
+            long totalCount = await _unitOfWork.GetCollection<Reviews>()
+                .CountDocumentsAsync(r => r.ProductId == productId);
+
             // Thực hiện truy vấn và chuyển đổi kết quả sang danh sách ReviewDto
             IEnumerable<Reviews> reviews = await query.ToListAsync() ?? throw new NotFoundCustomException("No reviews found for this product");
             IEnumerable<ReviewDto> reviewsDto = _mapper.Map<IEnumerable<ReviewDto>>(reviews);
-            return reviewsDto;
+
+            return new PaginatedResult<ReviewDto>
+            {
+                Items = reviewsDto,
+                TotalCount = totalCount,
+            };
         }
 
-        public async Task<IEnumerable<ReviewDto>> GetReviewsByUserIdAsync(string userId, int offset = 1, int limit = 10)
+        public async Task<PaginatedResult<ReviewDto>> GetReviewsByUserIdAsync(string userId, int offset = 1, int limit = 10)
         {
             // Lấy tất cả đánh giá theo UserId
             IQueryable<Reviews> query = _unitOfWork.GetCollection<Reviews>().AsQueryable()
                 .Where(r => r.UserId == userId);
             // Phân trang
             query = query.Skip((offset - 1) * limit).Take(limit);
+
+            long totalCount = await _unitOfWork.GetCollection<Reviews>()
+                .CountDocumentsAsync(r => r.UserId == userId);
+
             // Thực hiện truy vấn và chuyển đổi kết quả sang danh sách ReviewDto
             IEnumerable<Reviews> reviews = await query.ToListAsync() ?? throw new NotFoundCustomException("No reviews found for this user");
             IEnumerable<ReviewDto> reviewsDto = _mapper.Map<IEnumerable<ReviewDto>>(reviews);
-            return reviewsDto;
+
+            return new PaginatedResult<ReviewDto>
+            {
+                Items = reviewsDto,
+                TotalCount = totalCount,
+            }; ;
         }
 
         public async Task PostReviewAsync(CreateReviewDto createReviewDto)
@@ -121,7 +151,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Review
 
         public async Task DeleteReviewAsync(string reviewId)
         {
-            // Xóa đánh giá theo ID
+            // Xóa đánh giá theo Id
             DeleteResult result = await _unitOfWork.GetCollection<Reviews>()
                 .DeleteOneAsync(r => r.Id == reviewId);
 

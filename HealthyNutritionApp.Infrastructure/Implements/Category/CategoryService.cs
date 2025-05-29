@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HealthyNutritionApp.Application.Dto.Category;
+using HealthyNutritionApp.Application.Dto.PaginatedResult;
 using HealthyNutritionApp.Application.Exceptions;
 using HealthyNutritionApp.Application.Interfaces;
 using HealthyNutritionApp.Application.Interfaces.Category;
@@ -30,7 +31,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Category
         // to manage category data.
         // For now, this class serves as a placeholder for future category management functionality.
 
-        public async Task<IEnumerable<CategoryDto>> GetCategoriesAsync(CategoryFilterDto categoryFilterDto, int offset = 1, int limit = 10)
+        public async Task<PaginatedResult<CategoryDto>> GetCategoriesAsync(CategoryFilterDto categoryFilterDto, int offset = 1, int limit = 10)
         {
             // Phân trang và lấy tất cả danh mục
             IQueryable<Categories> query = _unitOfWork.GetCollection<Categories>().AsQueryable();
@@ -54,10 +55,21 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Category
             // Phân trang
             query = query.Skip((offset - 1) * limit).Take(limit);
 
+            long totalCount = await _unitOfWork.GetCollection<Categories>()
+                .CountDocumentsAsync(c => string.IsNullOrEmpty(categoryFilterDto.Name) || c.Name.Contains(categoryFilterDto.Name, StringComparison.CurrentCultureIgnoreCase) &&
+                                          (string.IsNullOrEmpty(categoryFilterDto.Type) || c.Type.Equals(categoryFilterDto.Type, StringComparison.CurrentCultureIgnoreCase)) &&
+                                          (string.IsNullOrEmpty(categoryFilterDto.Description) || c.Description.Contains(categoryFilterDto.Description, StringComparison.CurrentCultureIgnoreCase)));
+
             // Thực hiện truy vấn và chuyển đổi kết quả sang danh sách CategoryDto
             IEnumerable<Categories> categories = await query.ToListAsync();
 
-            return _mapper.Map<IEnumerable<CategoryDto>>(categories);
+            IEnumerable<CategoryDto> categoriesDto = _mapper.Map<IEnumerable<CategoryDto>>(categories);
+
+            return new PaginatedResult<CategoryDto>
+            {
+                Items = categoriesDto,
+                TotalCount = totalCount,
+            };
         }
 
         public async Task<CategoryDto> GetCategoryByIdAsync(string id)

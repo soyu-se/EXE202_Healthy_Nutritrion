@@ -1,5 +1,4 @@
-﻿using System.Net;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace HealthyNutritionApp.Domain.Entities

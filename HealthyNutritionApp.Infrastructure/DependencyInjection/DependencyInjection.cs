@@ -1,16 +1,21 @@
 ﻿using CloudinaryDotNet;
 using HealthyNutritionApp.Application.DatabaseContext;
 using HealthyNutritionApp.Application.Interfaces;
+using HealthyNutritionApp.Application.Interfaces.Account;
+using HealthyNutritionApp.Application.Interfaces.Authentication;
 using HealthyNutritionApp.Application.Interfaces.Category;
+using HealthyNutritionApp.Application.Interfaces.Feedback;
 using HealthyNutritionApp.Application.Interfaces.Product;
 using HealthyNutritionApp.Application.Interfaces.Review;
 using HealthyNutritionApp.Application.Mapper;
+using HealthyNutritionApp.Application.ThirdPartyService.Cloudinary;
 using HealthyNutritionApp.Domain.Enums.SchemaFilter;
 using HealthyNutritionApp.Domain.Utils;
 using HealthyNutritionApp.Infrastructure.Implements;
 using HealthyNutritionApp.Infrastructure.Implements.Account;
 using HealthyNutritionApp.Infrastructure.Implements.Authentication;
 using HealthyNutritionApp.Infrastructure.Implements.Category;
+using HealthyNutritionApp.Infrastructure.Implements.Feedback;
 using HealthyNutritionApp.Infrastructure.Implements.Product;
 using HealthyNutritionApp.Infrastructure.Implements.Review;
 using HealthyNutritionApp.Infrastructure.ThirdPartyService.Cloudinaries;
@@ -104,6 +109,7 @@ namespace HealthyNutritionApp.Infrastructure.DependencyInjection
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IReviewService, ReviewService>();
+            services.AddScoped<IFeedbackService, FeedbackService>();
             services.AddScoped<ICloudinaryService, CloudinaryService>();
             services.AddScoped<IJsonWebToken, JsonWebToken>();
 

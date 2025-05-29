@@ -1,6 +1,7 @@
-﻿using HealthyNutritionApp.Application.Dto;
+﻿using HealthyNutritionApp.Application.Dto.Authentication;
 using HealthyNutritionApp.Application.Exceptions;
 using HealthyNutritionApp.Application.Interfaces;
+using HealthyNutritionApp.Application.Interfaces.Authentication;
 using HealthyNutritionApp.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;

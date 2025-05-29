@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace HealthyNutritionApp.Application.Dto
+namespace HealthyNutritionApp.Application.Dto.Account
 {
     public class EditProfileDto
     {

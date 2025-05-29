@@ -1,7 +1,6 @@
-﻿
-using HealthyNutritionApp.Application.Dto;
+﻿using HealthyNutritionApp.Application.Dto.Authentication;
 
-namespace HealthyNutritionApp.Application.Interfaces
+namespace HealthyNutritionApp.Application.Interfaces.Authentication
 {
     public interface IAuthenticationService
     {

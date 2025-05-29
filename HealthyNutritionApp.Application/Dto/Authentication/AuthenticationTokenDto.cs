@@ -1,4 +1,4 @@
-﻿namespace HealthyNutritionApp.Application.Dto
+﻿namespace HealthyNutritionApp.Application.Dto.Authentication
 {
     public class AuthenticationTokenDto
     {

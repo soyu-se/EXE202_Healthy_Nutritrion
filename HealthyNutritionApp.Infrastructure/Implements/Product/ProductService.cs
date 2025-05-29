@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using CloudinaryDotNet.Actions;
 using HealthyNutritionApp.Application.Dto;
+using HealthyNutritionApp.Application.Dto.PaginatedResult;
 using HealthyNutritionApp.Application.Dto.Product;
 using HealthyNutritionApp.Application.Exceptions;
 using HealthyNutritionApp.Application.Interfaces;
 using HealthyNutritionApp.Application.Interfaces.Product;
+using HealthyNutritionApp.Application.ThirdPartyService.Cloudinary;
 using HealthyNutritionApp.Domain.Entities;
 using HealthyNutritionApp.Domain.Enums;
 using HealthyNutritionApp.Domain.Utils;
@@ -20,7 +22,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Product
         private readonly IMapper _mapper = mapper;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
 
-        public async Task<IEnumerable<ProductDto>> GetProductsAsync(ProductFilterDto productFilterDto, int offset = 1, int limit = 10)
+        public async Task<PaginatedResult<ProductDto>> GetProductsAsync(ProductFilterDto productFilterDto, int offset = 1, int limit = 10)
         {
             // Bắt đầu với truy vấn cơ bản
             IQueryable<Products> query = _unitOfWork.GetCollection<Products>().AsQueryable();
@@ -78,12 +80,18 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Product
             IEnumerable<Products> products = await query.ToListAsync();
             IEnumerable<ProductDto> productsDto = _mapper.Map<IEnumerable<ProductDto>>(products);
 
-            return productsDto;
+            long totalCount = await _unitOfWork.GetCollection<Products>().CountDocumentsAsync(_ => true);
+
+            return new PaginatedResult<ProductDto>
+            {
+                Items = productsDto,
+                TotalCount = totalCount,
+            };
         }
 
         public async Task<ProductDto> GetProductByIdAsync(string id)
         {
-            Products products = await _unitOfWork.GetCollection<Products>().Find(p => p.Id == id).FirstOrDefaultAsync() 
+            Products products = await _unitOfWork.GetCollection<Products>().Find(p => p.Id == id).FirstOrDefaultAsync()
                 ?? throw new NotFoundCustomException("Product not found");
 
             ProductDto productDto = _mapper.Map<ProductDto>(products);
@@ -119,7 +127,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Product
 
         public async Task UpdateProductAsync(string id, UpdateProductDto updateProductDto)
         {
-            Products product = await _unitOfWork.GetCollection<Products>().Find(p => p.Id == id).FirstOrDefaultAsync() 
+            Products product = await _unitOfWork.GetCollection<Products>().Find(p => p.Id == id).FirstOrDefaultAsync()
                 ?? throw new NotFoundCustomException("Product not found");
 
             UpdateDefinitionBuilder<Products> updateBuilder = Builders<Products>.Update;

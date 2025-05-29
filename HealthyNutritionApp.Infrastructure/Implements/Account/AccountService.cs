@@ -1,6 +1,8 @@
 ﻿using CloudinaryDotNet.Actions;
-using HealthyNutritionApp.Application.Dto;
+using HealthyNutritionApp.Application.Dto.Account;
 using HealthyNutritionApp.Application.Interfaces;
+using HealthyNutritionApp.Application.Interfaces.Account;
+using HealthyNutritionApp.Application.ThirdPartyService.Cloudinary;
 using HealthyNutritionApp.Domain.Entities;
 using HealthyNutritionApp.Domain.Enums;
 using HealthyNutritionApp.Domain.Utils;
@@ -14,6 +16,17 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Account
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
+
+        #region Get All Users
+        public async Task<long> GetTotalCountUsersAsync()
+        {
+            // Lấy tổng số lượng người dùng từ DB
+            long totalCount = await _unitOfWork.GetCollection<Users>().CountDocumentsAsync(_ => true);
+
+            // Trả về tổng số lượng người dùng
+            return totalCount;
+        }
+        #endregion
 
         #region GetUserProfile
         public async Task<UserProfileDto> GetUserProfileAsync()

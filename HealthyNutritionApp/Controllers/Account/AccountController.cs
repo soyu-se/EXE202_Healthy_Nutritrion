@@ -1,4 +1,4 @@
-﻿using HealthyNutritionApp.Application.Interfaces;
+﻿using HealthyNutritionApp.Application.Interfaces.Account;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
