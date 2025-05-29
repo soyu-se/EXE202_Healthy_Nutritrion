@@ -21,9 +21,9 @@ namespace HealthyNutritionApp.Controllers.Account
         }
 
         [Authorize(Roles = "Admin"), HttpGet]
-        public async Task<IActionResult> GetAllUsers(int offset = 1, int limit = 10)
+        public async Task<IActionResult> GetAllUsers(int pageIndex = 1, int limit = 10)
         {
-            var result = await _accountService.GetUsersAsync(offset, limit);
+            var result = await _accountService.GetUsersAsync(pageIndex, limit);
             return Ok(new { message = "User accounts retrieved successfully", result });
         }
 

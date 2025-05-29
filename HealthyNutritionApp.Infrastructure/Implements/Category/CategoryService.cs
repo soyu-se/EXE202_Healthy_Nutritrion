@@ -31,7 +31,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Category
         // to manage category data.
         // For now, this class serves as a placeholder for future category management functionality.
 
-        public async Task<PaginatedResult<CategoryDto>> GetCategoriesAsync(CategoryFilterDto categoryFilterDto, int offset = 1, int limit = 10)
+        public async Task<PaginatedResult<CategoryDto>> GetCategoriesAsync(CategoryFilterDto categoryFilterDto, int pageIndex = 1, int limit = 10)
         {
             // Phân trang và lấy tất cả danh mục
             IQueryable<Categories> query = _unitOfWork.GetCollection<Categories>().AsQueryable();
@@ -53,7 +53,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Category
             }
 
             // Phân trang
-            query = query.Skip((offset - 1) * limit).Take(limit);
+            query = query.Skip((pageIndex - 1) * limit).Take(limit);
 
             long totalCount = await _unitOfWork.GetCollection<Categories>()
                 .CountDocumentsAsync(c => string.IsNullOrEmpty(categoryFilterDto.Name) || c.Name.Contains(categoryFilterDto.Name, StringComparison.CurrentCultureIgnoreCase) &&

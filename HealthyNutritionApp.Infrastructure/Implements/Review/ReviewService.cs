@@ -16,7 +16,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Review
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<PaginatedResult<ReviewDto>> GetReviewsAsync(ReviewFilterDto reviewFilterDto, int offset = 1, int limit = 10)
+        public async Task<PaginatedResult<ReviewDto>> GetReviewsAsync(ReviewFilterDto reviewFilterDto, int pageIndex = 1, int limit = 10)
         {
             // Phân trang và lấy tất cả đánh giá
             IQueryable<Reviews> query = _unitOfWork.GetCollection<Reviews>().AsQueryable();
@@ -44,7 +44,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Review
             }
 
             // Phân trang
-            query = query.Skip((offset - 1) * limit).Take(limit);
+            query = query.Skip((pageIndex - 1) * limit).Take(limit);
 
             long totalCount = await _unitOfWork.GetCollection<Reviews>()
                 .CountDocumentsAsync(r => string.IsNullOrEmpty(reviewFilterDto.Comment) || r.Comment.Contains(reviewFilterDto.Comment, StringComparison.CurrentCultureIgnoreCase) &&
@@ -73,14 +73,14 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Review
             return reviewDto;
         }
 
-        public async Task<PaginatedResult<ReviewDto>> GetReviewsByProductIdAsync(string productId, int offset = 1, int limit = 10)
+        public async Task<PaginatedResult<ReviewDto>> GetReviewsByProductIdAsync(string productId, int pageIndex = 1, int limit = 10)
         {
             // Lấy tất cả đánh giá theo ProductId
             IQueryable<Reviews> query = _unitOfWork.GetCollection<Reviews>().AsQueryable()
                 .Where(r => r.ProductId == productId);
 
             // Phân trang
-            query = query.Skip((offset - 1) * limit).Take(limit);
+            query = query.Skip((pageIndex - 1) * limit).Take(limit);
 
             long totalCount = await _unitOfWork.GetCollection<Reviews>()
                 .CountDocumentsAsync(r => r.ProductId == productId);
@@ -96,13 +96,13 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Review
             };
         }
 
-        public async Task<PaginatedResult<ReviewDto>> GetReviewsByUserIdAsync(string userId, int offset = 1, int limit = 10)
+        public async Task<PaginatedResult<ReviewDto>> GetReviewsByUserIdAsync(string userId, int pageIndex = 1, int limit = 10)
         {
             // Lấy tất cả đánh giá theo UserId
             IQueryable<Reviews> query = _unitOfWork.GetCollection<Reviews>().AsQueryable()
                 .Where(r => r.UserId == userId);
             // Phân trang
-            query = query.Skip((offset - 1) * limit).Take(limit);
+            query = query.Skip((pageIndex - 1) * limit).Take(limit);
 
             long totalCount = await _unitOfWork.GetCollection<Reviews>()
                 .CountDocumentsAsync(r => r.UserId == userId);

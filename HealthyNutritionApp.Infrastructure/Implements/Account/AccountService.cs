@@ -33,12 +33,12 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Account
         #endregion
 
         #region GetAllUsers
-        public async Task<PaginatedResult<UserAccountDto>> GetUsersAsync(int offset, int limit)
+        public async Task<PaginatedResult<UserAccountDto>> GetUsersAsync(int pageIndex, int limit)
         {
             // Lấy danh sách người dùng từ DB với phân trang
             IEnumerable<Users> users = await _unitOfWork.GetCollection<Users>()
                 .Find(_ => true)
-                .Skip((offset - 1) * limit)
+                .Skip((pageIndex - 1) * limit)
                 .Limit(limit)
                 .ToListAsync();
 

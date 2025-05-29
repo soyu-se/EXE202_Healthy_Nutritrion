@@ -22,7 +22,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Product
         private readonly IMapper _mapper = mapper;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
 
-        public async Task<PaginatedResult<ProductDto>> GetProductsAsync(ProductFilterDto productFilterDto, int offset = 1, int limit = 10)
+        public async Task<PaginatedResult<ProductDto>> GetProductsAsync(ProductFilterDto productFilterDto, int pageIndex = 1, int limit = 10)
         {
             // Bắt đầu với truy vấn cơ bản
             IQueryable<Products> query = _unitOfWork.GetCollection<Products>().AsQueryable();
@@ -74,7 +74,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Product
             }
 
             // Phân trang
-            query = query.Skip((offset - 1) * limit).Take(limit);
+            query = query.Skip((pageIndex - 1) * limit).Take(limit);
 
             // Thực thi truy vấn và chuyển đổi sang DTO
             IEnumerable<Products> products = await query.ToListAsync();

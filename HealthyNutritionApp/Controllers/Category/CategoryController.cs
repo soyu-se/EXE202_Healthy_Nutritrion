@@ -14,9 +14,9 @@ namespace HealthyNutritionApp.Controllers.Category
         private readonly ICategoryService _categoryService = categoryService;
 
         [AllowAnonymous, HttpGet]
-        public async Task<IActionResult> GetCategoriesAsync([FromQuery] CategoryFilterDto categoryFilterDto, [FromQuery] int offset = 1, [FromQuery] int limit = 10)
+        public async Task<IActionResult> GetCategoriesAsync([FromQuery] CategoryFilterDto categoryFilterDto, [FromQuery] int pageIndex = 1, [FromQuery] int limit = 10)
         {
-            var result = await _categoryService.GetCategoriesAsync(categoryFilterDto, offset, limit);
+            var result = await _categoryService.GetCategoriesAsync(categoryFilterDto, pageIndex, limit);
             return Ok(new { message = "Categories retrieved successfully", result });
         }
 

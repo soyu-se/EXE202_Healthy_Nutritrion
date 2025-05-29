@@ -14,13 +14,13 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Feedback
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<PaginatedResult<CreateFeedbackDto>> GetFeedbacksAsync(int offset, int limit)
+        public async Task<PaginatedResult<CreateFeedbackDto>> GetFeedbacksAsync(int pageIndex, int limit)
         {
             // Here you would typically retrieve feedback from a database or another storage system.
             // For this example, we will just return an empty list.
             List<Domain.Entities.Feedback> feedbacks = await _unitOfWork.GetCollection<Domain.Entities.Feedback>()
                 .Find(_ => true)
-                .Skip((offset - 1) * limit)
+                .Skip((pageIndex - 1) * limit)
                 .Limit(limit)
                 .ToListAsync();
 

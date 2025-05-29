@@ -14,9 +14,9 @@ namespace HealthyNutritionApp.Controllers.Review
         private readonly IReviewService _reviewService = reviewService;
 
         [AllowAnonymous, HttpGet]
-        public async Task<IActionResult> GetReviewsAsync([FromQuery] ReviewFilterDto reviewFilterDto, [FromQuery] int offset = 1, [FromQuery] int limit = 10)
+        public async Task<IActionResult> GetReviewsAsync([FromQuery] ReviewFilterDto reviewFilterDto, [FromQuery] int pageIndex = 1, [FromQuery] int limit = 10)
         {
-            var result = await _reviewService.GetReviewsAsync(reviewFilterDto, offset, limit);
+            var result = await _reviewService.GetReviewsAsync(reviewFilterDto, pageIndex, limit);
             return Ok(new { message = "Reviews retrieved successfully", result });
         }
 

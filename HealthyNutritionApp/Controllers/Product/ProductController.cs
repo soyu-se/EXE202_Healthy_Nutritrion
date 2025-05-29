@@ -14,9 +14,9 @@ namespace HealthyNutritionApp.Controllers.Product
         private readonly IProductService _productService = productService;
 
         [AllowAnonymous, HttpGet]
-        public async Task<IActionResult> GetProductsAsync([FromQuery] ProductFilterDto productFilterDto, [FromQuery] int offset = 1, [FromQuery] int limit = 10)
+        public async Task<IActionResult> GetProductsAsync([FromQuery] ProductFilterDto productFilterDto, [FromQuery] int pageIndex = 1, [FromQuery] int limit = 10)
         {
-            var result = await _productService.GetProductsAsync(productFilterDto, offset, limit);
+            var result = await _productService.GetProductsAsync(productFilterDto, pageIndex, limit);
             return Ok(new { message = "Products retrieved successfully", result });
         }
 
