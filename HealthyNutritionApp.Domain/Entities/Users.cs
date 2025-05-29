@@ -27,6 +27,6 @@ namespace HealthyNutritionApp.Domain.Entities
         public DateTime CreatedAt { get; set; }
 
         [BsonRepresentation(BsonType.DateTime)]
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }

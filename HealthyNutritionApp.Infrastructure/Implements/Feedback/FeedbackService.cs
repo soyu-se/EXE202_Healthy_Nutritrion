@@ -20,7 +20,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Feedback
             // For this example, we will just return an empty list.
             List<Domain.Entities.Feedback> feedbacks = await _unitOfWork.GetCollection<Domain.Entities.Feedback>()
                 .Find(_ => true)
-                .Skip(offset)
+                .Skip((offset - 1) * limit)
                 .Limit(limit)
                 .ToListAsync();
 

@@ -1,4 +1,5 @@
-﻿using HealthyNutritionApp.Application.Interfaces.Account;
+﻿using HealthyNutritionApp.Application.Dto.Account;
+using HealthyNutritionApp.Application.Interfaces.Account;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,20 @@ namespace HealthyNutritionApp.Controllers.Account
         {
             var result = await _accountService.GetUserProfileAsync();
             return Ok(new { message = "User profile retrieved successfully", result });
+        }
+
+        [Authorize(Roles = "Admin"), HttpGet]
+        public async Task<IActionResult> GetAllUsers(int offset = 1, int limit = 10)
+        {
+            var result = await _accountService.GetUsersAsync(offset, limit);
+            return Ok(new { message = "User accounts retrieved successfully", result });
+        }
+
+        [Authorize(Roles = "Admin"), HttpPost]
+        public async Task<IActionResult> CreateAccount(CreateUserDto createUserDto)
+        {
+            await _accountService.CreateUserAsync(createUserDto);
+            return Ok(new { message = "Account created successfully" });
         }
     }
 }

@@ -1,5 +1,8 @@
-﻿using CloudinaryDotNet.Actions;
+﻿using AutoMapper;
+using CloudinaryDotNet.Actions;
 using HealthyNutritionApp.Application.Dto.Account;
+using HealthyNutritionApp.Application.Dto.PaginatedResult;
+using HealthyNutritionApp.Application.Exceptions;
 using HealthyNutritionApp.Application.Interfaces;
 using HealthyNutritionApp.Application.Interfaces.Account;
 using HealthyNutritionApp.Application.ThirdPartyService.Cloudinary;
@@ -11,11 +14,12 @@ using MongoDB.Driver;
 
 namespace HealthyNutritionApp.Infrastructure.Implements.Account
 {
-    public class AccountService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor, ICloudinaryService cloudinaryService) : IAccountService
+    public class AccountService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor, ICloudinaryService cloudinaryService, IMapper mapper) : IAccountService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
+        private readonly IMapper _mapper = mapper;
 
         #region Get All Users
         public async Task<long> GetTotalCountUsersAsync()
@@ -25,6 +29,29 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Account
 
             // Trả về tổng số lượng người dùng
             return totalCount;
+        }
+        #endregion
+
+        #region GetAllUsers
+        public async Task<PaginatedResult<UserAccountDto>> GetUsersAsync(int offset, int limit)
+        {
+            // Lấy danh sách người dùng từ DB với phân trang
+            IEnumerable<Users> users = await _unitOfWork.GetCollection<Users>()
+                .Find(_ => true)
+                .Skip((offset - 1) * limit)
+                .Limit(limit)
+                .ToListAsync();
+
+            long totalCount = await _unitOfWork.GetCollection<Users>().CountDocumentsAsync(_ => true);
+
+            // Chuyển đổi sang danh sách DTO
+            IEnumerable<UserAccountDto> userAccountsDto = _mapper.Map<IEnumerable<UserAccountDto>>(users);
+
+            return new PaginatedResult<UserAccountDto>
+            {
+                Items = userAccountsDto,
+                TotalCount = totalCount
+            };
         }
         #endregion
 
@@ -53,6 +80,46 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Account
             };
 
             return userProfileDto;
+        }
+        #endregion
+
+        #region CreateUserAsync
+        public async Task CreateUserAsync(CreateUserDto createUserDto)
+        {
+            // Validate input parameters
+            if (string.IsNullOrWhiteSpace(createUserDto.FullName))
+            {
+                throw new BadRequestCustomException("Full name is required");
+            }
+            
+            if (string.IsNullOrWhiteSpace(createUserDto.PhoneNumber))
+            {
+                throw new BadRequestCustomException("Phone number is required");
+            }
+            
+            if (string.IsNullOrWhiteSpace(createUserDto.Password))
+            {
+                throw new BadRequestCustomException("Password is required");
+            }
+
+            // Kiểm tra xem người dùng đã tồn tại chưa
+            Users existingUser = await _unitOfWork.GetCollection<Users>().Find(user => user.PhoneNumber == createUserDto.PhoneNumber).FirstOrDefaultAsync();
+            if (existingUser != null)
+            {
+                throw new Exception("User already exists with this phone number");
+            }
+            // Tạo người dùng mới
+            Users newUser = new()
+            {
+                FullName = createUserDto.FullName,
+                PhoneNumber = createUserDto.PhoneNumber,
+                Password = BCrypt.Net.BCrypt.HashPassword(createUserDto.Password), // Mã hóa mật khẩu nếu cần
+                Role = "User",
+                CreatedAt = TimeControl.GetUtcPlus7Time(),
+                UpdatedAt = null
+            };
+            // Lưu người dùng vào DB
+            await _unitOfWork.GetCollection<Users>().InsertOneAsync(newUser);
         }
         #endregion
 
@@ -100,6 +167,23 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Account
             // Cập nhật thông tin người dùng
             await _unitOfWork.GetCollection<Users>()
                 .FindOneAndUpdateAsync(user => user.Id == editProfileDto.UserId, updateDefinition);
+        }
+        #endregion
+
+        #region DeleteUserAsync
+        public async Task DeleteUserAsync(string userId)
+        {
+            // Validate input parameters
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new ArgumentException("Invalid UserId parameters");
+            }
+            // Xóa người dùng khỏi DB
+            DeleteResult result = await _unitOfWork.GetCollection<Users>().DeleteOneAsync(user => user.Id == userId);
+            if (result.DeletedCount == 0)
+            {
+                throw new NotFoundCustomException("User not found");
+            }
         }
         #endregion
 
