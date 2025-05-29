@@ -28,7 +28,7 @@ namespace HealthyNutritionApp.Controllers.Authentication
             return Ok(new { message = "Login Successfully", accessToken });
         }
 
-        [Authorize(Roles = "User"), HttpPost("change-password")]
+        [Authorize(Roles = "User,Admin"), HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordModel)
         {
             await _authentication.ChangePasswordAsync(changePasswordModel.NewPassword, changePasswordModel.OldPassword);
