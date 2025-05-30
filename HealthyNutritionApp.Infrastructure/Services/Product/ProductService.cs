@@ -10,11 +10,11 @@ using HealthyNutritionApp.Application.ThirdPartyService.Cloudinary;
 using HealthyNutritionApp.Domain.Entities;
 using HealthyNutritionApp.Domain.Enums;
 using HealthyNutritionApp.Domain.Utils;
-using HealthyNutritionApp.Infrastructure.ThirdPartyService.Cloudinaries;
+using HealthyNutritionApp.Infrastructure.ThirdPartyServices.Cloudinaries;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
-namespace HealthyNutritionApp.Infrastructure.Implements.Product
+namespace HealthyNutritionApp.Infrastructure.Services.Product
 {
     public class ProductService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService) : IProductService
     {

@@ -4,7 +4,7 @@ using System.Text;
 using HealthyNutritionApp.Application.Interfaces.Authentication;
 using Microsoft.IdentityModel.Tokens;
 
-namespace HealthyNutritionApp.Infrastructure.Implements.Authentication
+namespace HealthyNutritionApp.Infrastructure.Services.Authentication
 {
     public class JsonWebToken : IJsonWebToken
     {

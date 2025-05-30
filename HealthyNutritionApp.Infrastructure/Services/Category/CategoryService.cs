@@ -9,7 +9,7 @@ using HealthyNutritionApp.Domain.Utils;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
-namespace HealthyNutritionApp.Infrastructure.Implements.Category
+namespace HealthyNutritionApp.Infrastructure.Services.Category
 {
     public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ICategoryService
     {

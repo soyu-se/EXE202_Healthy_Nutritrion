@@ -6,7 +6,7 @@ using HealthyNutritionApp.Domain.Utils;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
-namespace HealthyNutritionApp.Infrastructure.ThirdPartyService.Cloudinaries
+namespace HealthyNutritionApp.Infrastructure.ThirdPartyServices.Cloudinaries
 {
     public class CloudinaryService(Cloudinary cloudinary, IHttpContextAccessor httpContextAccessor) : IDisposable, ICloudinaryService
     {

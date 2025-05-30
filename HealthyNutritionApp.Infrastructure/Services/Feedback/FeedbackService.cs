@@ -7,7 +7,7 @@ using HealthyNutritionApp.Application.Interfaces.Feedback;
 using HealthyNutritionApp.Domain.Utils;
 using MongoDB.Driver;
 
-namespace HealthyNutritionApp.Infrastructure.Implements.Feedback
+namespace HealthyNutritionApp.Infrastructure.Services.Feedback
 {
     public class FeedbackService(IUnitOfWork unitOfWork, IMapper mapper) : IFeedbackService
     {
