@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using MongoDB.Bson;
 using System.Security.Claims;
 
-namespace HealthyNutritionApp.Infrastructure.ThirdPartyService.Cloudinaries
+namespace HealthyNutritionApp.Infrastructure.ThirdPartyServices.Cloudinaries
 {
     public class CloudinaryService(Cloudinary cloudinary, IHttpContextAccessor httpContextAccessor) : IDisposable, ICloudinaryService
     {

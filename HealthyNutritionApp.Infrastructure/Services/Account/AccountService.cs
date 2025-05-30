@@ -12,7 +12,7 @@ using HealthyNutritionApp.Domain.Utils;
 using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
 
-namespace HealthyNutritionApp.Infrastructure.Implements.Account
+namespace HealthyNutritionApp.Infrastructure.Services.Account
 {
     public class AccountService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor, ICloudinaryService cloudinaryService, IMapper mapper) : IAccountService
     {
@@ -91,12 +91,12 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Account
             {
                 throw new BadRequestCustomException("Full name is required");
             }
-            
+
             if (string.IsNullOrWhiteSpace(createUserDto.PhoneNumber))
             {
                 throw new BadRequestCustomException("Phone number is required");
             }
-            
+
             if (string.IsNullOrWhiteSpace(createUserDto.Password))
             {
                 throw new BadRequestCustomException("Password is required");

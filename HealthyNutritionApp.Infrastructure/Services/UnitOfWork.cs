@@ -2,7 +2,7 @@
 using HealthyNutritionApp.Application.Interfaces;
 using MongoDB.Driver;
 
-namespace HealthyNutritionApp.Infrastructure.Implements
+namespace HealthyNutritionApp.Infrastructure.Services
 {
     public class UnitOfWork(HealthyNutritionDbContext dbContext) : IUnitOfWork
     {

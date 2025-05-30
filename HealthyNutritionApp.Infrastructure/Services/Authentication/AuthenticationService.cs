@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
 using System.Security.Claims;
 
-namespace HealthyNutritionApp.Infrastructure.Implements.Authentication
+namespace HealthyNutritionApp.Infrastructure.Services.Authentication
 {
     public class AuthenticationService(IUnitOfWork unitOfWork, IJsonWebToken jsonWebToken, IHttpContextAccessor httpContextAccessor) : IAuthenticationService
     {
@@ -43,12 +43,12 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Authentication
             }
 
             // Kiểm tra account đã tồn tại hay chưa
-            if(await IsEmailExisted(email))
+            if (await IsEmailExisted(email))
             {
                 throw new ConflictCustomException("Account already exists");
             }
 
-            if(await IsPhoneNumberExisted(phoneNumber))
+            if (await IsPhoneNumberExisted(phoneNumber))
             {
                 throw new ConflictCustomException("Phone number already exists");
             }

@@ -9,6 +9,8 @@ namespace HealthyNutritionApp.Domain.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
 
+        public int PayOSOrderCode { get; set; }
+
         [BsonRepresentation(BsonType.ObjectId)]
         public string UserId { get; set; }
 
@@ -18,7 +20,7 @@ namespace HealthyNutritionApp.Domain.Entities
 
         public string Status { get; set; }
 
-        public string ShippingAddress { get; set; }
+        public string? ShippingAddress { get; set; }
 
         [BsonRepresentation(BsonType.DateTime)]
         public DateTime CreatedAt { get; set; }

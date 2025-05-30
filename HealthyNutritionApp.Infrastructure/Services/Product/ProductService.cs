@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
-namespace HealthyNutritionApp.Infrastructure.Implements.Product
+namespace HealthyNutritionApp.Infrastructure.Services.Product
 {
     public class ProductService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService) : IProductService
     {

@@ -9,7 +9,7 @@ using HealthyNutritionApp.Domain.Utils;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
-namespace HealthyNutritionApp.Infrastructure.Implements.Review
+namespace HealthyNutritionApp.Infrastructure.Services.Review
 {
     public class ReviewService(IUnitOfWork unitOfWork, IMapper mapper) : IReviewService
     {
