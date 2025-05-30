@@ -5,7 +5,7 @@ using HealthyNutritionApp.Application.Dto.PaginatedResult;
 using HealthyNutritionApp.Application.Exceptions;
 using HealthyNutritionApp.Application.Interfaces;
 using HealthyNutritionApp.Application.Interfaces.Account;
-using HealthyNutritionApp.Application.ThirdPartyService.Cloudinary;
+using HealthyNutritionApp.Application.ThirdPartyServices.Cloudinary;
 using HealthyNutritionApp.Domain.Entities;
 using HealthyNutritionApp.Domain.Enums;
 using HealthyNutritionApp.Domain.Utils;

@@ -2,7 +2,7 @@
 using HealthyNutritionApp.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 
-namespace HealthyNutritionApp.Application.ThirdPartyService.Cloudinary
+namespace HealthyNutritionApp.Application.ThirdPartyServices.Cloudinary
 {
     public interface ICloudinaryService
     {

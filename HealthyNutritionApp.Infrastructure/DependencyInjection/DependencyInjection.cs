@@ -8,7 +8,7 @@ using HealthyNutritionApp.Application.Interfaces.Feedback;
 using HealthyNutritionApp.Application.Interfaces.Product;
 using HealthyNutritionApp.Application.Interfaces.Review;
 using HealthyNutritionApp.Application.Mapper;
-using HealthyNutritionApp.Application.ThirdPartyService.Cloudinary;
+using HealthyNutritionApp.Application.ThirdPartyServices.Cloudinary;
 using HealthyNutritionApp.Domain.Enums.SchemaFilter;
 using HealthyNutritionApp.Domain.Utils;
 using HealthyNutritionApp.Infrastructure.Services;
