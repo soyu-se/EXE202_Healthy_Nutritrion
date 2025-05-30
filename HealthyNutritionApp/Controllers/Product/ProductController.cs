@@ -29,7 +29,7 @@ namespace HealthyNutritionApp.Controllers.Product
         }
 
         [AllowAnonymous, HttpPost]
-        public async Task<IActionResult> CreateProductAsync([FromBody] CreateProductDto productDto)
+        public async Task<IActionResult> CreateProductAsync(CreateProductDto productDto)
         {
             // Logic to create a new product
             await _productService.CreateProductAsync(productDto);

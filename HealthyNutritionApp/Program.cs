@@ -1,4 +1,5 @@
-﻿using HealthyNutritionApp.Filters;
+﻿using HealthyNutritionApp.Application.Exceptions;
+using HealthyNutritionApp.Filters;
 using HealthyNutritionApp.Infrastructure.DependencyInjection;
 using Serilog;
 namespace HealthyNutritionApp
@@ -33,7 +34,7 @@ namespace HealthyNutritionApp
                 options.AddPolicy("AllowSpecificOrigin",
                     builder => builder
                         .WithOrigins("http://localhost:3000")
-                        .WithOrigins(Environment.GetEnvironmentVariable("HEALTHY_NUTRITION_CLIENT_URL") ?? throw new Exception("ClientUrl connect fail"))
+                        .WithOrigins(Environment.GetEnvironmentVariable("HEALTHY_NUTRITION_CLIENT_URL") ?? throw new NotFoundCustomException("ClientUrl connect fail"))
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials());

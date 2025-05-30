@@ -4,6 +4,7 @@ using HealthyNutritionApp.Application.ThirdPartyService.Cloudinary;
 using HealthyNutritionApp.Domain.Enums;
 using HealthyNutritionApp.Domain.Utils;
 using Microsoft.AspNetCore.Http;
+using MongoDB.Bson;
 using System.Security.Claims;
 
 namespace HealthyNutritionApp.Infrastructure.ThirdPartyService.Cloudinaries
@@ -19,7 +20,8 @@ namespace HealthyNutritionApp.Infrastructure.ThirdPartyService.Cloudinaries
         public ImageUploadResult UploadImage(IFormFile imageFile, ImageTag imageTag, string rootFolder = "Image")
         {
             // UserId lấy từ phiên người dùng có thể là FE hoặc BE
-            string userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("Your session is limit, you must login again to edit profile!");
+            //string userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("Your session is limit, you must login again to edit profile!");
+            string userId = ObjectId.GenerateNewId().ToString();
 
             if (imageFile is null || imageFile.Length == 0)
             {

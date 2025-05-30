@@ -1,4 +1,5 @@
 ﻿using HealthyNutritionApp.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 
 namespace HealthyNutritionApp.Application.Dto.Product
 {
@@ -18,7 +19,7 @@ namespace HealthyNutritionApp.Application.Dto.Product
 
         public int StockQuantity { get; set; }
 
-        public List<string> ImageUrls { get; set; }
+        public IFormFileCollection ImageProduct { get; set; }
 
         public NutritionFact NutritionFact { get; set; }
     }

@@ -115,6 +115,7 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Account
                 PhoneNumber = createUserDto.PhoneNumber,
                 Password = BCrypt.Net.BCrypt.HashPassword(createUserDto.Password), // Mã hóa mật khẩu nếu cần
                 Role = "User",
+                Image = "https://res.cloudinary.com/dofnn7sbx/image/upload/v1730097883/60d5dc467b950c5ccc8ced95_spotify-for-artists_on4me9.jpg", // Có thể là null nếu không có ảnh
                 CreatedAt = TimeControl.GetUtcPlus7Time(),
                 UpdatedAt = null
             };

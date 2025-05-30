@@ -11,6 +11,7 @@ using HealthyNutritionApp.Domain.Entities;
 using HealthyNutritionApp.Domain.Enums;
 using HealthyNutritionApp.Domain.Utils;
 using HealthyNutritionApp.Infrastructure.ThirdPartyService.Cloudinaries;
+using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
@@ -101,6 +102,24 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Product
 
         public async Task CreateProductAsync(CreateProductDto productDto)
         {
+            // Kiểm tra xem sản phẩm đã tồn tại chưa
+            bool productExists = await _unitOfWork.GetCollection<Products>().Find(p => p.Name == productDto.Name).AnyAsync();
+            if (productExists)
+            {
+                throw new BadRequestCustomException("Product already exists");
+            }
+
+            // Upload ảnh lên Cloudinary
+            List<string> imageUrls = [];
+            if (productDto.ImageProduct is not null && productDto.ImageProduct.Count > 0)
+            {
+                foreach (IFormFile image in productDto.ImageProduct)
+                {
+                    ImageUploadResult result = _cloudinaryService.UploadImage(image, ImageTag.Product);
+                    imageUrls.Add(result.SecureUrl.AbsoluteUri);
+                }
+            }
+
             Products product = new()
             {
                 Name = productDto.Name,
@@ -110,8 +129,10 @@ namespace HealthyNutritionApp.Infrastructure.Implements.Product
                 Brand = productDto.Brand,
                 Tags = productDto.Tags,
                 StockQuantity = productDto.StockQuantity,
-                ImageUrls = productDto.ImageUrls,
-                NutritionFact = productDto.NutritionFact
+                ImageUrls = imageUrls,
+                NutritionFact = productDto.NutritionFact,
+                CreatedAt = TimeControl.GetUtcPlus7Time(),
+                UpdatedAt = null
             };
 
             await _unitOfWork.GetCollection<Products>().InsertOneAsync(product);
