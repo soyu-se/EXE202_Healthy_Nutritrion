@@ -2,9 +2,7 @@
 {
     public record CreatePaymentLinkRequest
     (
-        string ProductName,
-        string Description,
-        int Price,
+        string CartId,
         string ReturnUrl,
         string CancelUrl
     );

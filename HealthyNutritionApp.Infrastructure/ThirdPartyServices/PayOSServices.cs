@@ -1,10 +1,11 @@
 ﻿using HealthyNutritionApp.Application.Dto.PayOS;
 using HealthyNutritionApp.Application.Exceptions;
 using HealthyNutritionApp.Application.Interfaces;
-using HealthyNutritionApp.Application.ThirdPartyService;
+using HealthyNutritionApp.Application.ThirdPartyServices;
 using HealthyNutritionApp.Domain.Entities;
 using HealthyNutritionApp.Infrastructure.Exceptions;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using Net.payOS;
 using Net.payOS.Types;
 using Serilog;
@@ -53,12 +54,38 @@ namespace HealthyNutritionApp.Infrastructure.ThirdPartyServices
 
         public async Task<CreatePaymentResult> CreatePaymentLink(CreatePaymentLinkRequest request)
         {
+            //Lay ra thong tin Cart hop le
+            Carts cart = _unitOfWork.GetCollection<Carts>().Find(c => c.Id == request.CartId).FirstOrDefault() ?? throw new NotFoundCustomException("Product cart is not found!");
+
             //Tao mot code moi cho Order
             int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
-            ItemData itemData = new ItemData(request.ProductName, 1, request.Price);
+            long expiredAt = new DateTimeOffset(DateTime.UtcNow.AddMinutes(15)).ToUnixTimeSeconds();
+
             List<ItemData> items = new List<ItemData>();
-            items.Add(itemData);
-            PaymentData paymentData = new PaymentData(orderCode, request.Price, request.Description, items, request.CancelUrl, request.ReturnUrl);
+
+            foreach (CartItem cartItems in GetCartItems(cart.Items))
+            {
+                ItemData itemData = new ItemData(cartItems.ProductName, cartItems.Quantity, cartItems.PricePerUnit);
+                items.Add(itemData);
+            }
+
+
+            //Lay tong amount tat ca san pham trong cart
+            int cartAmount = await _unitOfWork.GetCollection<Carts>().AsQueryable()
+                                                                     .Where(c => c.Id == request.CartId)
+                                                                     .Select(c => c.Items.Sum(item => item.Quantity * item.PricePerUnit))
+                                                                     .FirstOrDefaultAsync();
+            Log.Information("total amount of cart is: {CartAmount}",cartAmount);
+
+            PaymentData paymentData = new(
+                    orderCode: orderCode,
+                    amount: cartAmount,
+                    description: "Healthy Nutrition Payment",
+                    items: items,
+                    cancelUrl: request.CancelUrl,
+                    returnUrl: request.ReturnUrl,
+                    expiredAt: expiredAt
+                );
 
             CreatePaymentResult paymentResult = await _payOS.createPaymentLink(paymentData);
             return paymentResult;
@@ -79,6 +106,16 @@ namespace HealthyNutritionApp.Infrastructure.ThirdPartyServices
         public async Task<string> ConfirmWebhookAsync(ConfirmWebhookRequest request)
         {
             return await _payOS.confirmWebhook(request.Webhook_Url);
+        }
+
+
+
+        private IEnumerable<CartItem> GetCartItems(List<CartItem> cartItems)
+        {
+            foreach (CartItem cartItem in cartItems)
+            {
+                yield return cartItem;
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Net.payOS.Types;
 using HealthyNutritionApp.Application.Dto.PayOS;
 
-namespace HealthyNutritionApp.Application.ThirdPartyService
+namespace HealthyNutritionApp.Application.ThirdPartyServices
 {
     public interface IPayOSServices
     {
