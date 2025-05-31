@@ -108,10 +108,12 @@ namespace HealthyNutritionApp.Infrastructure.Services.Account
             {
                 throw new Exception("User already exists with this phone number");
             }
+
             // Tạo người dùng mới
             Users newUser = new()
             {
                 FullName = createUserDto.FullName,
+                Email = createUserDto.Email,
                 PhoneNumber = createUserDto.PhoneNumber,
                 Password = BCrypt.Net.BCrypt.HashPassword(createUserDto.Password), // Mã hóa mật khẩu nếu cần
                 Role = "User",
@@ -119,6 +121,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Account
                 CreatedAt = TimeControl.GetUtcPlus7Time(),
                 UpdatedAt = null
             };
+
             // Lưu người dùng vào DB
             await _unitOfWork.GetCollection<Users>().InsertOneAsync(newUser);
         }
