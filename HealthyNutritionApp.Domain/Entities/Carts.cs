@@ -9,6 +9,7 @@ namespace HealthyNutritionApp.Domain.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
 
+        [BsonRepresentation(BsonType.ObjectId)]
         public string UserId { get; set; }
 
         public List<CartItem> Items { get; set; }

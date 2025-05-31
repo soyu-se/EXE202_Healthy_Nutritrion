@@ -32,6 +32,8 @@ using MongoDB.Driver;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
+using HealthyNutritionApp.Infrastructure.ThirdPartyServices;
+using HealthyNutritionApp.Application.ThirdPartyServices;
 
 namespace HealthyNutritionApp.Infrastructure.DependencyInjection
 {
@@ -112,6 +114,7 @@ namespace HealthyNutritionApp.Infrastructure.DependencyInjection
             services.AddScoped<IFeedbackService, FeedbackService>();
             services.AddScoped<ICloudinaryService, CloudinaryService>();
             services.AddScoped<IJsonWebToken, JsonWebToken>();
+            services.AddScoped<IPayOSServices, PayOSServices>();
 
             services.AddHttpContextAccessor();
             //services.AddScoped<IRedisCache, RedisCacheService>();
