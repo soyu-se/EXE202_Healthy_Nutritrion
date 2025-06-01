@@ -1,10 +1,14 @@
-﻿using CloudinaryDotNet;
+﻿using System.Reflection;
+using System.Security.Claims;
+using System.Text;
+using CloudinaryDotNet;
 using HealthyNutritionApp.Application.DatabaseContext;
 using HealthyNutritionApp.Application.Interfaces;
 using HealthyNutritionApp.Application.Interfaces.Account;
 using HealthyNutritionApp.Application.Interfaces.Authentication;
 using HealthyNutritionApp.Application.Interfaces.Category;
 using HealthyNutritionApp.Application.Interfaces.Feedback;
+using HealthyNutritionApp.Application.Interfaces.Order;
 using HealthyNutritionApp.Application.Interfaces.Product;
 using HealthyNutritionApp.Application.Interfaces.Review;
 using HealthyNutritionApp.Application.Mapper;
@@ -12,12 +16,13 @@ using HealthyNutritionApp.Application.ThirdPartyServices.Cloudinary;
 using HealthyNutritionApp.Domain.Enums.SchemaFilter;
 using HealthyNutritionApp.Domain.Utils;
 using HealthyNutritionApp.Infrastructure.Services;
-using HealthyNutritionApp.Infrastructure.Services.Feedback;
-using HealthyNutritionApp.Infrastructure.Services.Product;
-using HealthyNutritionApp.Infrastructure.Services.Review;
 using HealthyNutritionApp.Infrastructure.Services.Account;
 using HealthyNutritionApp.Infrastructure.Services.Authentication;
 using HealthyNutritionApp.Infrastructure.Services.Category;
+using HealthyNutritionApp.Infrastructure.Services.Feedback;
+using HealthyNutritionApp.Infrastructure.Services.Order;
+using HealthyNutritionApp.Infrastructure.Services.Product;
+using HealthyNutritionApp.Infrastructure.Services.Review;
 using HealthyNutritionApp.Infrastructure.ThirdPartyServices.Cloudinaries;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -29,11 +34,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
-using System.Reflection;
-using System.Security.Claims;
-using System.Text;
-using HealthyNutritionApp.Infrastructure.ThirdPartyServices;
-using HealthyNutritionApp.Application.ThirdPartyServices;
 
 namespace HealthyNutritionApp.Infrastructure.DependencyInjection
 {
@@ -114,7 +114,7 @@ namespace HealthyNutritionApp.Infrastructure.DependencyInjection
             services.AddScoped<IFeedbackService, FeedbackService>();
             services.AddScoped<ICloudinaryService, CloudinaryService>();
             services.AddScoped<IJsonWebToken, JsonWebToken>();
-            services.AddScoped<IPayOSServices, PayOSServices>();
+            services.AddScoped<IOrderServices, OrderServices>();
 
             services.AddHttpContextAccessor();
             //services.AddScoped<IRedisCache, RedisCacheService>();

@@ -24,8 +24,4 @@
     <ProjectReference Include="..\HealthyNutritionApp.Infrastructure\HealthyNutritionApp.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\Cart\" />
-  </ItemGroup>
-
 </Project>

@@ -1,8 +1,10 @@
-﻿namespace HealthyNutritionApp.Application.Dto.PayOS
+﻿using HealthyNutritionApp.Application.Dto.Order;
+
+namespace HealthyNutritionApp.Application.Dto.PayOS
 {
     public record CreatePaymentLinkRequest
     (
-        string CartId,
+        OrderInformationRequest OrderInformation,
         string ReturnUrl,
         string CancelUrl
     );

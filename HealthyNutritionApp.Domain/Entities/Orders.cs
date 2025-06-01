@@ -9,23 +9,27 @@ namespace HealthyNutritionApp.Domain.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
 
-        public int PayOSOrderCode { get; set; }
-
         [BsonRepresentation(BsonType.ObjectId)]
         public string UserId { get; set; }
+
+        public int PayOSOrderCode { get; set; }
 
         public List<OrderItems> Items { get; set; }
 
         public decimal TotalAmount { get; set; }
 
         public string Status { get; set; }
+    }
 
-        public string? ShippingAddress { get; set; }
+    public class OrderItems
+    {
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string ProductId { get; set; }
 
-        [BsonRepresentation(BsonType.DateTime)]
-        public DateTime CreatedAt { get; set; }
+        public string ProductName { get; set; }
 
-        [BsonRepresentation(BsonType.DateTime)]
-        public DateTime UpdatedAt { get; set; }
+        public int Quantity { get; set; }
+
+        public decimal PricePerUnit { get; set; }
     }
 }
