@@ -12,5 +12,6 @@ namespace HealthyNutritionApp.Application.Dto.Product
         public int StockQuantity { get; set; } // Số lượng tồn kho
         public List<string> CategoryIds { get; set; } // ID danh mục sản phẩm
         public List<string> Tags { get; set; } = []; // Danh sách thẻ sản phẩm
+        public NutritionFact NutritionFact { get; set; } // Thông tin dinh dưỡng của sản phẩm
     }
 }
