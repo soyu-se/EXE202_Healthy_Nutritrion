@@ -71,13 +71,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Account
             Users user = await _unitOfWork.GetCollection<Users>().Find(user => user.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
 
             // Chuyển đổi sang DTO
-            UserProfileDto userProfileDto = new()
-            {
-                FullName = user.FullName,
-                PhoneNumber = user.PhoneNumber,
-                Address = user.Address,
-                Image = user.Image,
-            };
+            UserProfileDto userProfileDto = _mapper.Map<UserProfileDto>(user);
 
             return userProfileDto;
         }
