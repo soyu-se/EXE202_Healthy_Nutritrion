@@ -67,8 +67,11 @@ namespace HealthyNutritionApp
 
                     options.HeadContent = "ngrok-skip-browser-warning";
 
-                    //    // Inject JavaScript để chuyển đổi theme
-                    options.InjectJavascript("/theme-switcher.js");
+                    // Inject JavaScript để chuyển đổi theme
+                    //options.InjectJavascript("/theme-switcher.js");
+
+                    // Inject CSS để tùy chỉnh giao diện
+                    options.InjectStylesheet("/swagger-dark-theme.css");
                 });
             }
             else

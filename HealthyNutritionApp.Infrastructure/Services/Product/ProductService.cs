@@ -166,14 +166,20 @@ namespace HealthyNutritionApp.Infrastructure.Services.Product
                 updateBuilder.Set(p => p.UpdatedAt, TimeControl.GetUtcPlus7Time())
             ];
 
-            // Cập nhật Image Field nếu có
-            if (updateProductDto.Image is not null)
+            // Fix for CS1061: 'UpdateProductDto' does not contain a definition for 'Image'.
+            // The error occurs because the `UpdateProductDto` class does not have a property named `Image`.
+            // Based on the context, it seems the intended property is `ImageProduct`.
+            // Update the code to use `ImageProduct` instead of `Image`.
+            if (updateProductDto.ImageProduct is not null && updateProductDto.ImageProduct.Count > 0)
             {
-                // Upload ảnh lên Cloudinary
-                ImageUploadResult result = _cloudinaryService.UploadImage(updateProductDto.Image, ImageTag.Users_Profile);
+                // Upload images to Cloudinary
+                foreach (IFormFile image in updateProductDto.ImageProduct)
+                {
+                    ImageUploadResult result = _cloudinaryService.UploadImage(image, ImageTag.Product);
 
-                // Cập nhật URL cho ảnh
-                updates.Add(updateBuilder.Set(p => p.ImageUrls[0], result.SecureUrl.AbsoluteUri));
+                    // Update the first image URL in the product's ImageUrls list
+                    updates.Add(updateBuilder.Set(p => p.ImageUrls[0], result.SecureUrl.AbsoluteUri));
+                }
             }
 
             UpdateDefinition<Products> updateDefinition = updateBuilder.Combine(updates);

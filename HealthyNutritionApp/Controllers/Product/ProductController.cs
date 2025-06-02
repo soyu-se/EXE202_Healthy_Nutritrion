@@ -37,7 +37,7 @@ namespace HealthyNutritionApp.Controllers.Product
         }
 
         [AllowAnonymous, HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProductAsync(string id, [FromBody] UpdateProductDto updateProductDto)
+        public async Task<IActionResult> UpdateProductAsync(string id, UpdateProductDto updateProductDto)
         {
             // Logic to update an existing product
             await _productService.UpdateProductAsync(id, updateProductDto);
