@@ -9,6 +9,7 @@ using HealthyNutritionApp.Application.Interfaces.Authentication;
 using HealthyNutritionApp.Application.Interfaces.Category;
 using HealthyNutritionApp.Application.Interfaces.Feedback;
 using HealthyNutritionApp.Application.Interfaces.Order;
+using HealthyNutritionApp.Application.Interfaces.Payment;
 using HealthyNutritionApp.Application.Interfaces.Product;
 using HealthyNutritionApp.Application.Interfaces.Review;
 using HealthyNutritionApp.Application.Mapper;
@@ -21,6 +22,7 @@ using HealthyNutritionApp.Infrastructure.Services.Authentication;
 using HealthyNutritionApp.Infrastructure.Services.Category;
 using HealthyNutritionApp.Infrastructure.Services.Feedback;
 using HealthyNutritionApp.Infrastructure.Services.Order;
+using HealthyNutritionApp.Infrastructure.Services.Payment;
 using HealthyNutritionApp.Infrastructure.Services.Product;
 using HealthyNutritionApp.Infrastructure.Services.Review;
 using HealthyNutritionApp.Infrastructure.ThirdPartyServices.Cloudinaries;
@@ -115,6 +117,7 @@ namespace HealthyNutritionApp.Infrastructure.DependencyInjection
             services.AddScoped<ICloudinaryService, CloudinaryService>();
             services.AddScoped<IJsonWebToken, JsonWebToken>();
             services.AddScoped<IOrderServices, OrderServices>();
+            services.AddScoped<IPaymentServices, PaymentServices>();
 
             services.AddHttpContextAccessor();
             //services.AddScoped<IRedisCache, RedisCacheService>();
@@ -200,6 +203,7 @@ namespace HealthyNutritionApp.Infrastructure.DependencyInjection
                         {
                             Environment.GetEnvironmentVariable("SPOTIFY_HUB_CORS_ORIGIN_FE_PRODUCTION"),
                             Environment.GetEnvironmentVariable("SPOTIFY_HUB_CORS_ORIGIN_FE_01_DEVELOPMENT"),
+                            Environment.GetEnvironmentVariable("PAY_OS_CORE_ORIGIN")
                         }.Where(origin => !string.IsNullOrWhiteSpace(origin));
 
                         // Kiểm tra xem origin có trong danh sách được phép không

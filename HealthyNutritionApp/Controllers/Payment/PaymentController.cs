@@ -1,6 +1,5 @@
-﻿using HealthyNutritionApp.Application.Dto.PayOS;
-using HealthyNutritionApp.Application.Interfaces.Order;
-using HealthyNutritionApp.Application.ThirdPartyServices;
+﻿using HealthyNutritionApp.Application.Dto.Payment;
+using HealthyNutritionApp.Application.Interfaces.Payment;
 using Microsoft.AspNetCore.Mvc;
 using Net.payOS.Types;
 
@@ -11,22 +10,10 @@ namespace HealthyNutritionApp.Controllers.Payment
 
     public class PaymentController : Controller
     {
-        private readonly IOrderServices _orderServices;
-        public PaymentController(IOrderServices payOSServices)
+        private readonly IPaymentServices _paymentServices;
+        public PaymentController(IPaymentServices paymentServices)
         {
-            _orderServices = payOSServices;
-        }
-
-        /// <summary>
-        /// Lấy thông tin Order (Bill) thông qua order code
-        /// </summary>
-        /// <param name="orderId"></param>
-        /// <returns></returns>
-        [HttpGet("get-order")]
-        public async Task<IActionResult> GetOrderInformation(int orderId)
-        {
-            var result = await _orderServices.GetOrderDetails(orderId);
-            return Ok(result);
+            _paymentServices = paymentServices;
         }
 
         /// <summary>
@@ -37,21 +24,39 @@ namespace HealthyNutritionApp.Controllers.Payment
         [HttpPost("create-payment-link")]
         public async Task<IActionResult> CreatePaymentLink([FromBody] CreatePaymentLinkRequest request)
         {
-            var result = await _orderServices.GeneratePaymentLink(request);
+            var result = await _paymentServices.GeneratePaymentLink(request);
             return Ok(result);
         }
 
         /// <summary>
-        /// Sau khi thanh toán sẽ trr về webhook trên url, dùng nó để cập nhật thông tin đơn vào Db
+        ///  API này Payment sẽ gọi
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [HttpPost("update-order-payment")]
+        [HttpPost("handle-webhook")]
         public async Task<IActionResult> HandleWebhook([FromBody] WebhookType request)
         {
-            await _orderServices.HandleWebhook(request);
+            await _paymentServices.HandleWebhook(request);
             return Ok("Update successfully!");
         }
 
+        /// <summary>
+        /// Xác nhận link nhận webhook với payOs
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("confirm-webhook")]
+        public async Task<IActionResult> ConfirmWebhook(string url)
+        {
+            await _paymentServices.ConfirmWebhook(url);
+            return Ok("Confirm webhook successfully!");
+        }
+
+        
+        [HttpPatch("cancel-payment")]
+        public async Task<IActionResult> CancelPaymentLink([FromBody] CancelPaymentLinkRequest request)
+        {
+            var result = await _paymentServices.CancelPaymentLink(request);
+            return Ok(result);
+        }
     }
 }

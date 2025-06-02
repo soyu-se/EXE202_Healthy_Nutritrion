@@ -1,7 +1,8 @@
-﻿namespace HealthyNutritionApp.Application.Dto.PayOS
+﻿namespace HealthyNutritionApp.Application.Dto.Payment
 {
-    public record ConfirmWebhookRequest
+    public record CancelPaymentLinkRequest
     (
-        string Webhook_Url
+        long OrderCode,
+        string? Reason
     );
 }

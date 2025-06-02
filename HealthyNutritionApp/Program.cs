@@ -35,6 +35,7 @@ namespace HealthyNutritionApp
                     builder => builder
                         .WithOrigins("http://localhost:3000")
                         .WithOrigins(Environment.GetEnvironmentVariable("HEALTHY_NUTRITION_CLIENT_URL") ?? throw new NotFoundCustomException("ClientUrl connect fail"))
+                        .WithOrigins(Environment.GetEnvironmentVariable("PAY_OS_CORE_ORIGIN") ?? throw new NotFoundCustomException("PayOs connect fail"))
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials());
@@ -63,6 +64,8 @@ namespace HealthyNutritionApp
 
                     //    // Đường dẫn đến file JSON của Swagger
                     options.SwaggerEndpoint("/swagger/v1/swagger.json", "HealthyNutrition API V1");
+
+                    options.HeadContent = "ngrok-skip-browser-warning";
 
                     //    // Inject JavaScript để chuyển đổi theme
                     options.InjectJavascript("/theme-switcher.js");
