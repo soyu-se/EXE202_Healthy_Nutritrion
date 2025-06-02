@@ -13,7 +13,7 @@ namespace HealthyNutritionApp.Controllers.Account
     {
         private readonly IAccountService _accountService = accountService;
 
-        [Authorize(Roles = "User"), HttpGet("profile")]
+        [Authorize(Roles = "User, Admin"), HttpGet("profile")]
         public async Task<IActionResult> GetUserProfile()
         {
             var result = await _accountService.GetUserProfileAsync();
