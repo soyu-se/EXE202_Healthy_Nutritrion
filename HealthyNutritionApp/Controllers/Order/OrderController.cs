@@ -1,0 +1,42 @@
+﻿using HealthyNutritionApp.Application.Interfaces.Order;
+using Microsoft.AspNetCore.Mvc;
+
+namespace HealthyNutritionApp.Controllers.Order
+{
+    [Route("/api/v1/orders")]
+    [ApiController]
+    public class OrderController : Controller
+    {
+        private readonly IOrderServices _orderServices;
+        public OrderController(IOrderServices payOSServices)
+        {
+            _orderServices = payOSServices;
+        }
+
+        /// <summary>
+        /// Lấy thông tin Order (Bill) thông qua order code
+        /// </summary>
+        /// <param name="code"></param>
+        /// <returns></returns>
+        [HttpGet("{code}")]
+        public async Task<IActionResult> GetOrderInformation(int code) 
+        {
+            var result = await _orderServices.GetOrderDetails(code);
+            return Ok(result);
+        }
+
+
+        /// <summary>
+        /// Lấy tất cả order
+        /// </summary>
+        /// <param name="pageIndex"></param>
+        /// <param name="limit"></param>
+        /// <returns></returns>
+        [HttpGet()]
+        public async Task<IActionResult> GetAllOrders([FromQuery] int pageIndex = 1, [FromQuery] int limit = 10)
+        {
+            var result = await _orderServices.GetOrderList(pageIndex, limit);
+            return Ok(result);
+        }
+    }
+}

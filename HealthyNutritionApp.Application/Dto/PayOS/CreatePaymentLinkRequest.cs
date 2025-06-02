@@ -1,6 +1,6 @@
 ﻿using HealthyNutritionApp.Application.Dto.Order;
 
-namespace HealthyNutritionApp.Application.Dto.PayOS
+namespace HealthyNutritionApp.Application.Dto.Payment
 {
     public record CreatePaymentLinkRequest
     (
