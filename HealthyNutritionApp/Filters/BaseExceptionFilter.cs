@@ -1,5 +1,4 @@
 ﻿using HealthyNutritionApp.Domain.Exceptions;
-using HealthyNutritionApp.Domain.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.WebUtilities;
@@ -9,43 +8,6 @@ namespace HealthyNutritionApp.Filters
 {
     public class BaseExceptionFilter : IExceptionFilter
     {
-        #region Mẫu ExceptionFilter
-        //public void OnException(ExceptionContext context)
-        //{
-        //    // Handle NotFoundCustomException
-        //    if (context.Exception is Application.Exceptions.NotFoundCustomException notFoundException)
-        //    {
-        //        context.Result = new Microsoft.AspNetCore.Mvc.NotFoundObjectResult(new { Message = notFoundException.Message });
-        //        context.HttpContext.Response.StatusCode = notFoundException.StatusCode;
-        //        context.ExceptionHandled = true;
-        //    }
-        //    // Handle UnauthorizedCustomException
-        //    else if (context.Exception is Application.Exceptions.UnauthorizedCustomException unauthorizedException)
-        //    {
-        //        context.Result = new Microsoft.AspNetCore.Mvc.UnauthorizedObjectResult(new { Message = unauthorizedException.Message });
-        //        context.HttpContext.Response.StatusCode = unauthorizedException.StatusCode;
-        //        context.ExceptionHandled = true;
-        //    }
-        //    // Handle ValidationCustomException
-        //    else if (context.Exception is Application.Exceptions.ValidationCustomException validationException)
-        //    {
-        //        context.Result = new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(new { Message = validationException.Message });
-        //        context.HttpContext.Response.StatusCode = validationException.StatusCode;
-        //        context.ExceptionHandled = true;
-        //    }
-        //    // Handle ExternalServiceCustomException
-        //    else if (context.Exception is Infrastructure.Exceptions.ExternalServiceCustomException externalServiceException)
-        //    {
-        //        context.Result = new Microsoft.AspNetCore.Mvc.ObjectResult(new { Message = externalServiceException.Message })
-        //        {
-        //            StatusCode = externalServiceException.StatusCode
-        //        };
-        //        context.HttpContext.Response.StatusCode = externalServiceException.StatusCode;
-        //        context.ExceptionHandled = true;
-        //    }
-        //}
-        #endregion
-
         public BaseExceptionFilter()
         {
         }

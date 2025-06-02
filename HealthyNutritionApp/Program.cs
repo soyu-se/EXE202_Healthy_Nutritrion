@@ -64,8 +64,11 @@ namespace HealthyNutritionApp
                     //    // Đường dẫn đến file JSON của Swagger
                     options.SwaggerEndpoint("/swagger/v1/swagger.json", "HealthyNutrition API V1");
 
-                    //    // Inject JavaScript để chuyển đổi theme
-                    options.InjectJavascript("/theme-switcher.js");
+                    // Inject JavaScript để chuyển đổi theme
+                    //options.InjectJavascript("/theme-switcher.js");
+
+                    // Inject CSS để tùy chỉnh giao diện
+                    options.InjectStylesheet("/swagger-dark-theme.css");
                 });
             }
             else
