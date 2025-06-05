@@ -8,6 +8,9 @@ namespace HealthyNutritionApp.Domain.Enums
         Users_Profile,
 
         [EnumMember(Value = "Product")]
-        Product
+        Product,
+
+        [EnumMember(Value = "Blogs")]
+        Blog
     }
 }
