@@ -31,8 +31,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Product
             // Kiểm tra nếu có bộ lọc tìm kiếm
             if (!string.IsNullOrEmpty(productFilterDto.SearchTerm))
             {
-                query = query.Where(p => p.Name.Contains(productFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase) ||
-                                         p.Description.Contains(productFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase));
+                query = query.Where(p => p.Name.Contains(productFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase));
             }
 
             // Lọc theo danh mục
