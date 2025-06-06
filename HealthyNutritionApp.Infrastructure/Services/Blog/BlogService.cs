@@ -12,6 +12,9 @@ using HealthyNutritionApp.Domain.Utils;
 using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace HealthyNutritionApp.Infrastructure.Services.Blog
 {
@@ -32,6 +35,20 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
                 throw new BadRequestCustomException($"Blogs already exists");
             }
 
+            // Generate slug from title
+            string slug = CreateSlug(createBlogDto.Title);
+
+            // Check if slug already exists
+            bool slugExists = await _unitOfWork.GetCollection<Blogs>()
+                .Find(b => b.Slug == slug)
+                .AnyAsync();
+
+            if (slugExists)
+            {
+                // Append a unique identifier to make the slug unique
+                slug = $"{slug}-{DateTime.Now.Ticks.ToString("x")}";
+            }
+
             // Upload ảnh lên Cloudinary
             List<string> imageUrls = [];
             if (createBlogDto.ImageBlog != null && createBlogDto.ImageBlog.Any())
@@ -43,11 +60,12 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
                 }
             }
 
-            Domain.Entities.Blogs blog = new()
+            Blogs blog = new()
             {
                 Title = createBlogDto.Title,
                 Content = createBlogDto.Content,
                 Excerpt = createBlogDto.Excerpt,
+                Slug = slug,
                 Tags = createBlogDto.Tags,
                 Images = imageUrls,
                 CreatedAt = TimeControl.GetUtcPlus7Time(),
@@ -59,6 +77,42 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
             return;
         }
 
+        public string CreateSlug(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return string.Empty;
+
+            // Remove diacritics (accents)
+            string normalizedString = text.Normalize(NormalizationForm.FormD);
+            StringBuilder stringBuilder = new();
+
+            foreach (char c in normalizedString)
+            {
+                UnicodeCategory unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            // Convert to lowercase
+            string result = stringBuilder.ToString().Normalize(NormalizationForm.FormC).ToLowerInvariant();
+
+            // Remove special characters
+            result = Regex.Replace(result, @"[^a-z0-9\s-]", string.Empty);
+
+            // Replace spaces with hyphens
+            result = Regex.Replace(result, @"\s+", "-");
+
+            // Remove consecutive hyphens
+            result = Regex.Replace(result, @"-+", "-");
+
+            // Remove leading and trailing hyphens
+            result = result.Trim('-');
+
+            return result;
+        }
+
         public async Task UpdateBlogAsync(string id, UpdateBlogDto updateBlogDto)
         {
             Domain.Entities.Blogs existingBlog = await _unitOfWork.GetCollection<Blogs>()
@@ -68,6 +122,24 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
 
             UpdateDefinitionBuilder<Blogs> updateBuilder = Builders<Blogs>.Update;
 
+            // Generate new slug if title is changed
+            string newSlug = null;
+            if (existingBlog.Title != updateBlogDto.Title)
+            {
+                newSlug = CreateSlug(updateBlogDto.Title);
+
+                // Check if new slug already exists (excluding current blog)
+                bool slugExists = await _unitOfWork.GetCollection<Blogs>()
+                    .Find(b => b.Slug == newSlug && b.Id != id)
+                    .AnyAsync();
+
+                if (slugExists)
+                {
+                    // Append a unique identifier to make the slug unique
+                    newSlug = $"{newSlug}-{DateTime.Now.Ticks.ToString("x")}";
+                }
+            }
+
             List<UpdateDefinition<Blogs>> updates =
             [
                 updateBuilder.Set(b => b.Title, updateBlogDto.Title),
@@ -76,6 +148,12 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
                 updateBuilder.Set(b => b.Tags, updateBlogDto.Tags),
                 updateBuilder.Set(b => b.UpdatedAt, TimeControl.GetUtcPlus7Time()),
             ];
+
+            // Add slug update if title changed
+            if (newSlug != null)
+            {
+                updates.Add(updateBuilder.Set(b => b.Slug, newSlug));
+            }
 
             if (updateBlogDto.ImageBlog != null && updateBlogDto.ImageBlog.Any())
             {
@@ -143,22 +221,28 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
                                          b.Content.Contains(blogFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase));
             }
 
+            // Lọc theo slug (nếu cần)
+            if (!string.IsNullOrEmpty(blogFilterDto.Slug))
+            {
+                query = query.Where(b => b.Slug == blogFilterDto.Slug);
+            }
+
             // Lọc theo thẻ
             if (blogFilterDto.Tags != null && blogFilterDto.Tags.Any())
             {
                 query = query.Where(b => b.Tags != null && b.Tags.Any(t => blogFilterDto.Tags.Contains(t)));
             }
 
-            // Lọc theo ngày
-            if (blogFilterDto.StartDate.HasValue)
-            {
-                query = query.Where(b => b.CreatedAt >= blogFilterDto.StartDate.Value);
-            }
+            //// Lọc theo ngày
+            //if (blogFilterDto.StartDate.HasValue)
+            //{
+            //    query = query.Where(b => b.CreatedAt >= blogFilterDto.StartDate.Value);
+            //}
 
-            if (blogFilterDto.EndDate.HasValue)
-            {
-                query = query.Where(b => b.CreatedAt <= blogFilterDto.EndDate.Value);
-            }
+            //if (blogFilterDto.EndDate.HasValue)
+            //{
+            //    query = query.Where(b => b.CreatedAt <= blogFilterDto.EndDate.Value);
+            //}
 
             // Phân trang
             query = query.Skip((pageIndex - 1) * limit).Take(limit);
@@ -178,9 +262,8 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
 
             long totalCount = await _unitOfWork.GetCollection<Blogs>()
                 .CountDocumentsAsync(b => (string.IsNullOrEmpty(blogFilterDto.SearchTerm) || b.Title.Contains(blogFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase) || b.Content.Contains(blogFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase)) &&
-                                          (!blogFilterDto.Tags.Any() || (b.Tags != null && b.Tags.Any(t => blogFilterDto.Tags.Contains(t)))) &&
-                                          (!blogFilterDto.StartDate.HasValue || b.CreatedAt >= blogFilterDto.StartDate.Value) &&
-                                          (!blogFilterDto.EndDate.HasValue || b.CreatedAt <= blogFilterDto.EndDate.Value));
+                                  (string.IsNullOrEmpty(blogFilterDto.Slug) || b.Slug == blogFilterDto.Slug) &&
+                                  (!blogFilterDto.Tags.Any() || (b.Tags != null && b.Tags.Any(t => blogFilterDto.Tags.Contains(t)))));
 
             return new PaginatedResult<BlogDto>
             {

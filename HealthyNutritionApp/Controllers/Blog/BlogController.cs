@@ -2,7 +2,6 @@
 using HealthyNutritionApp.Application.Interfaces.Blog;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthyNutritionApp.Controllers.Blog
@@ -26,6 +25,13 @@ namespace HealthyNutritionApp.Controllers.Blog
         {
             var blog = await _blogService.GetBlogByIdAsync(id);
             return Ok(new { message = $"Blog with ID {id} retrieved successfully", blog });
+        }
+
+        [AllowAnonymous, HttpGet("slug")]
+        public IActionResult GetBlogBySlugAsync(string slug)
+        {
+            var blog = _blogService.CreateSlug(slug);
+            return Ok(new { message = $"Blog with slug '{slug}' retrieved successfully", blog });
         }
 
         [Authorize(Roles = "Admin"), HttpPost]

@@ -10,5 +10,6 @@ namespace HealthyNutritionApp.Application.Interfaces.Blog
         Task DeleteBlogAsync(string id);
         Task<BlogDto> GetBlogByIdAsync(string id);
         Task<PaginatedResult<BlogDto>> GetBlogsAsync(BlogFilterDto blogFilterDto, int pageIndex = 1, int limit = 10);
+        string CreateSlug(string text);
     }
 }
