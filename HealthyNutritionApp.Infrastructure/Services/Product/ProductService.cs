@@ -80,12 +80,27 @@ namespace HealthyNutritionApp.Infrastructure.Services.Product
             IEnumerable<Products> products = await query.ToListAsync();
             IEnumerable<ProductDto> productsDto = _mapper.Map<IEnumerable<ProductDto>>(products);
 
+            // Nếu danh sách sản phẩm rỗng, trả về kết quả rỗng
+            if (!productsDto.Any())
+            {
+                return new PaginatedResult<ProductDto>
+                {
+                    Items = productsDto.ToList(),
+                    TotalCount = 0,
+                };
+            }
+
             // Lấy tổng số sản phẩm để tính toán phân trang
             long totalCount = await _unitOfWork.GetCollection<Products>()
-                .CountDocumentsAsync(p => (string.IsNullOrEmpty(productFilterDto.SearchTerm) || p.Name.Contains(productFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase) || p.Description.Contains(productFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase)) &&
-                                          (!productFilterDto.CategoryIds.Any() || (p.CategoryIds != null && p.CategoryIds.Any(c => productFilterDto.CategoryIds.Contains(c)))) &&
-                                          (string.IsNullOrEmpty(productFilterDto.Brand) || p.Brand.Contains(productFilterDto.Brand, StringComparison.CurrentCultureIgnoreCase)) &&
-                                          (!productFilterDto.Tags.Any() || (p.Tags != null && p.Tags.Any(t => productFilterDto.Tags.Contains(t)))) &&
+                .CountDocumentsAsync(p => (string.IsNullOrEmpty(productFilterDto.SearchTerm) ||
+                                           p.Name.Contains(productFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase) ||
+                                           p.Description.Contains(productFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase)) &&
+                                          (productFilterDto.CategoryIds == null || !productFilterDto.CategoryIds.Any() ||
+                                           (p.CategoryIds != null && p.CategoryIds.Any(c => productFilterDto.CategoryIds.Contains(c)))) &&
+                                          (string.IsNullOrEmpty(productFilterDto.Brand) ||
+                                           p.Brand.Contains(productFilterDto.Brand, StringComparison.CurrentCultureIgnoreCase)) &&
+                                          (productFilterDto.Tags == null || !productFilterDto.Tags.Any() ||
+                                           (p.Tags != null && p.Tags.Any(t => productFilterDto.Tags.Contains(t)))) &&
                                           (!productFilterDto.MinPrice.HasValue || p.Price >= productFilterDto.MinPrice.Value) &&
                                           (!productFilterDto.MaxPrice.HasValue || p.Price <= productFilterDto.MaxPrice.Value) &&
                                           (!productFilterDto.MinStockQuantity.HasValue || p.StockQuantity >= productFilterDto.MinStockQuantity.Value) &&
