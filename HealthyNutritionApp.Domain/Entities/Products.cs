@@ -28,6 +28,9 @@ namespace HealthyNutritionApp.Domain.Entities
 
         public NutritionFact NutritionFact { get; set; }
 
+        public double Rating { get; set; } // Average rating of the product
+        public long ReviewCount { get; set; } // Total number of reviews
+
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }
