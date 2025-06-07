@@ -24,7 +24,7 @@ namespace HealthyNutritionApp.Domain.Entities
 
         public int StockQuantity { get; set; }
 
-        public List<string> ImageUrls { get; set; }
+        public List<string> Images { get; set; }
 
         public NutritionFact NutritionFact { get; set; }
 
