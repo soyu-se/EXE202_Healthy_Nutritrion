@@ -129,6 +129,18 @@ namespace HealthyNutritionApp.Infrastructure.Services.Review
                 CreatedAt = TimeControl.GetUtcPlus7Time()
             };
 
+            long reviewCount = await _unitOfWork.GetCollection<Reviews>()
+                .CountDocumentsAsync(r => r.ProductId == createReviewDto.ProductId);
+
+            UpdateDefinition<Products> updateDefinition = Builders<Products>.Update
+                .Set(p => p.Rating, (review.Rating + createReviewDto.Rating) / (reviewCount + 1))
+                .Set(p => p.ReviewCount, reviewCount + 1)
+                .Set(p => p.UpdatedAt, TimeControl.GetUtcPlus7Time());
+
+            // Cập nhật sản phẩm với đánh giá mới
+            UpdateResult updateResult = await _unitOfWork.GetCollection<Products>()
+                .UpdateOneAsync(p => p.Id == createReviewDto.ProductId, updateDefinition);
+
             await _unitOfWork.GetCollection<Reviews>().InsertOneAsync(review);
         }
 

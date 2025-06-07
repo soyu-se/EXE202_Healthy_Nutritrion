@@ -154,20 +154,14 @@ namespace HealthyNutritionApp.Infrastructure.Services.Product
                 StockQuantity = productDto.StockQuantity,
                 ImageUrls = imageUrls,
                 NutritionFact = productDto.NutritionFact,
+                Rating = 0,
+                ReviewCount = 0,
                 CreatedAt = TimeControl.GetUtcPlus7Time(),
                 UpdatedAt = null
             };
 
             await _unitOfWork.GetCollection<Products>().InsertOneAsync(product);
         }
-
-        public async Task<List<Products>> GetProductsByPriceRangeAsync(double minPrice, double maxPrice)
-        {
-            return await _unitOfWork.GetCollection<Products>()
-                .Find(p => p.Price >= minPrice && p.Price <= maxPrice)
-                .ToListAsync();
-        }
-
 
         public async Task UpdateProductAsync(string id, UpdateProductDto updateProductDto)
         {
