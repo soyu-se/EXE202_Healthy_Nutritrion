@@ -133,10 +133,10 @@ namespace HealthyNutritionApp.Infrastructure.Services.Account
                 throw new Exception("Your session is limit, you must login again to edit profile!");
             }
 
-            Users user = await _unitOfWork.GetCollection<Users>().Find(user => user.Id == editProfileDto.UserId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
+            Users user = await _unitOfWork.GetCollection<Users>().Find(user => user.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
 
             // Validate input parameters
-            ValidateInput(editProfileDto.UserId, editProfileDto.FullName, editProfileDto.PhoneNumber);
+            ValidateInput(userId, editProfileDto.FullName, editProfileDto.PhoneNumber);
 
             // Build update definition
             UpdateDefinitionBuilder<Users> updateBuilder = Builders<Users>.Update;
@@ -164,7 +164,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Account
 
             // Cập nhật thông tin người dùng
             await _unitOfWork.GetCollection<Users>()
-                .FindOneAndUpdateAsync(user => user.Id == editProfileDto.UserId, updateDefinition);
+                .FindOneAndUpdateAsync(user => user.Id == userId, updateDefinition);
         }
         #endregion
 
