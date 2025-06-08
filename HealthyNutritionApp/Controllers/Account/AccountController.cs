@@ -20,6 +20,13 @@ namespace HealthyNutritionApp.Controllers.Account
             return Ok(new { message = "User profile retrieved successfully", result });
         }
 
+        [Authorize(Roles = "User, Admin"), HttpPut("profile")]
+        public async Task<IActionResult> EditUserProfile(EditProfileDto editProfileDto)
+        {
+            await _accountService.EditProfileAsync(editProfileDto);
+            return Ok(new { message = "User profile updated successfully" });
+        }
+
         [Authorize(Roles = "Admin"), HttpGet]
         public async Task<IActionResult> GetAllUsers(int pageIndex = 1, int limit = 10)
         {
