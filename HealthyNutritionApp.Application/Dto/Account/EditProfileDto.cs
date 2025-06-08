@@ -7,6 +7,6 @@ namespace HealthyNutritionApp.Application.Dto.Account
         public string? FullName { get; set; }
         public string? PhoneNumber { get; set; }
         public string? Address { get; set; }
-        public IFormFile Image { get; set; } // URL of the image
+        public IFormFile? Image { get; set; } // URL of the image
     }
 }
