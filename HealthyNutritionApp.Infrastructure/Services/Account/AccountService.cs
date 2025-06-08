@@ -135,20 +135,28 @@ namespace HealthyNutritionApp.Infrastructure.Services.Account
 
             Users user = await _unitOfWork.GetCollection<Users>().Find(user => user.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
 
-            // Validate input parameters
-            ValidateInput(userId, editProfileDto.FullName, editProfileDto.PhoneNumber);
-
             // Build update definition
             UpdateDefinitionBuilder<Users> updateBuilder = Builders<Users>.Update;
+            List<UpdateDefinition<Users>> updates = [];
 
-            // Cập nhật field sẵn có
-            List<UpdateDefinition<Users>> updates =
-            [
-                updateBuilder.Set(user => user.FullName, editProfileDto.FullName),
-                updateBuilder.Set(user => user.PhoneNumber, editProfileDto.PhoneNumber),
-                updateBuilder.Set(user => user.Address, editProfileDto.Address),
-                updateBuilder.Set(user => user.UpdatedAt, TimeControl.GetUtcPlus7Time())
-            ];
+            // Only update fields that are not null
+            if (editProfileDto.FullName is not null)
+            {
+                updates.Add(updateBuilder.Set(u => u.FullName, editProfileDto.FullName));
+            }
+            
+            if (editProfileDto.PhoneNumber is not null)
+            {
+                updates.Add(updateBuilder.Set(u => u.PhoneNumber, editProfileDto.PhoneNumber));
+            }
+            
+            if (editProfileDto.Address is not null)
+            {
+                updates.Add(updateBuilder.Set(u => u.Address, editProfileDto.Address));
+            }
+
+            // Always update the UpdatedAt timestamp if any changes are being made
+            updates.Add(updateBuilder.Set(u => u.UpdatedAt, TimeControl.GetUtcPlus7Time()));
 
             // Cập nhật Image Field nếu có
             if (editProfileDto.Image is not null)
@@ -157,14 +165,17 @@ namespace HealthyNutritionApp.Infrastructure.Services.Account
                 ImageUploadResult result = _cloudinaryService.UploadImage(editProfileDto.Image, ImageTag.Users_Profile);
 
                 // Cập nhật URL cho ảnh
-                updates.Add(updateBuilder.Set(user => user.Image, result.SecureUrl.AbsoluteUri));
+                updates.Add(updateBuilder.Set(u => u.Image, result.SecureUrl.AbsoluteUri));
             }
 
-            UpdateDefinition<Users> updateDefinition = updateBuilder.Combine(updates);
+            if (updates.Count > 1) // > 1 because we always add UpdatedAt
+            {
+                UpdateDefinition<Users> updateDefinition = updateBuilder.Combine(updates);
 
-            // Cập nhật thông tin người dùng
-            await _unitOfWork.GetCollection<Users>()
-                .FindOneAndUpdateAsync(user => user.Id == userId, updateDefinition);
+                // Cập nhật thông tin người dùng
+                await _unitOfWork.GetCollection<Users>()
+                    .FindOneAndUpdateAsync(user => user.Id == userId, updateDefinition);
+            }
         }
         #endregion
 
