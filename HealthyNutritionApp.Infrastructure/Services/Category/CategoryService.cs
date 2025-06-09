@@ -97,18 +97,45 @@ namespace HealthyNutritionApp.Infrastructure.Services.Category
 
         public async Task UpdateCategoryAsync(string id, UpdateCategoryDto categoryDto)
         {
-            // Implementation for updating a category
+            // Check if the category exists
             Categories category = await _unitOfWork.GetCollection<Categories>()
                 .Find(c => c.Id == id)
                 .FirstOrDefaultAsync() ?? throw new NotFoundCustomException("Category Not Found");
 
-            UpdateDefinition<Categories> update = Builders<Categories>.Update
-                .Set(c => c.Name, categoryDto.Name)
-                .Set(c => c.Type, categoryDto.Type)
-                .Set(c => c.Description, categoryDto.Description);
+            // Build update definition dynamically
+            UpdateDefinitionBuilder<Categories> updateBuilder = Builders<Categories>.Update;
+            List<UpdateDefinition<Categories>> updates = new();
 
-            await _unitOfWork.GetCollection<Categories>()
-                .UpdateOneAsync(c => c.Id == id, update);
+            // Only update fields if they are provided (non-null)
+            if (categoryDto.Name != null)
+            {
+                updates.Add(updateBuilder.Set(c => c.Name, categoryDto.Name));
+            }
+
+            if (categoryDto.Type != null)
+            {
+                updates.Add(updateBuilder.Set(c => c.Type, categoryDto.Type));
+            }
+
+            if (categoryDto.Description != null)
+            {
+                updates.Add(updateBuilder.Set(c => c.Description, categoryDto.Description));
+            }
+
+            // Only perform update if there are fields to update
+            if (updates.Count > 0)
+            {
+                // Combine all update definitions
+                UpdateDefinition<Categories> combinedUpdate = updateBuilder.Combine(updates);
+
+                // Update the category
+                await _unitOfWork.GetCollection<Categories>()
+                    .UpdateOneAsync(c => c.Id == id, combinedUpdate);
+            }
+            else
+            {
+                throw new BadRequestCustomException("No fields provided for update");
+            }
         }
 
         public async Task DeleteCategoryAsync(string id)

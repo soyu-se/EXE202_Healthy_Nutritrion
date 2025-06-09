@@ -169,39 +169,78 @@ namespace HealthyNutritionApp.Infrastructure.Services.Product
                 ?? throw new NotFoundCustomException("Product not found");
 
             UpdateDefinitionBuilder<Products> updateBuilder = Builders<Products>.Update;
+            List<UpdateDefinition<Products>> updates = [];
 
-            List<UpdateDefinition<Products>> updates =
-            [
-                updateBuilder.Set(p => p.Name, updateProductDto.Name),
-                updateBuilder.Set(p => p.Description, updateProductDto.Description),
-                updateBuilder.Set(p => p.Price, updateProductDto.Price),
-                updateBuilder.Set(p => p.CategoryIds, updateProductDto.CategoryIds),
-                updateBuilder.Set(p => p.Brand, updateProductDto.Brand),
-                updateBuilder.Set(p => p.Tags, updateProductDto.Tags),
-                updateBuilder.Set(p => p.StockQuantity, updateProductDto.StockQuantity),
-                updateBuilder.Set(p => p.NutritionFact, updateProductDto.NutritionFact),
-                updateBuilder.Set(p => p.UpdatedAt, TimeControl.GetUtcPlus7Time())
-            ];
-
-            // Fix for CS1061: 'UpdateProductDto' does not contain a definition for 'Image'.
-            // The error occurs because the `UpdateProductDto` class does not have a property named `Image`.
-            // Based on the context, it seems the intended property is `ImageProduct`.
-            // Update the code to use `ImageProduct` instead of `Image`.
-            if (updateProductDto.ImageProduct is not null && updateProductDto.ImageProduct.Count > 0)
+            // Only update fields if they are provided (non-null)
+            if (updateProductDto.Name != null)
             {
-                // Upload images to Cloudinary
+                updates.Add(updateBuilder.Set(p => p.Name, updateProductDto.Name));
+            }
+            
+            if (updateProductDto.Description != null)
+            {
+                updates.Add(updateBuilder.Set(p => p.Description, updateProductDto.Description));
+            }
+            
+            // For numeric types like double and int, we need to check if the DTO was actually provided with values
+            // As these cannot be null. For Price and StockQuantity, we'll assume non-zero/non-negative values are intentional updates.
+            if (updateProductDto.Price > 0)
+            {
+                updates.Add(updateBuilder.Set(p => p.Price, updateProductDto.Price));
+            }
+            
+            if (updateProductDto.StockQuantity >= 0) // Allow setting stock to 0
+            {
+                updates.Add(updateBuilder.Set(p => p.StockQuantity, updateProductDto.StockQuantity));
+            }
+            
+            if (updateProductDto.CategoryIds != null)
+            {
+                updates.Add(updateBuilder.Set(p => p.CategoryIds, updateProductDto.CategoryIds));
+            }
+            
+            if (updateProductDto.Brand != null)
+            {
+                updates.Add(updateBuilder.Set(p => p.Brand, updateProductDto.Brand));
+            }
+            
+            if (updateProductDto.Tags != null)
+            {
+                updates.Add(updateBuilder.Set(p => p.Tags, updateProductDto.Tags));
+            }
+            
+            if (updateProductDto.NutritionFact != null)
+            {
+                updates.Add(updateBuilder.Set(p => p.NutritionFact, updateProductDto.NutritionFact));
+            }
+            
+            // Always update the timestamp when making changes
+            updates.Add(updateBuilder.Set(p => p.UpdatedAt, TimeControl.GetUtcPlus7Time()));
+
+            // Handle image uploads if provided
+            if (updateProductDto.ImageProduct != null && updateProductDto.ImageProduct.Count > 0)
+            {
+                List<string> imageUrls = [];
+                
+                // Upload each image to Cloudinary
                 foreach (IFormFile image in updateProductDto.ImageProduct)
                 {
                     ImageUploadResult result = _cloudinaryService.UploadImage(image, ImageTag.Product);
-
-                    // Update the first image URL in the product's ImageUrls list
-                    updates.Add(updateBuilder.Set(p => p.ImageUrls[0], result.SecureUrl.AbsoluteUri));
+                    imageUrls.Add(result.SecureUrl.AbsoluteUri);
+                }
+                
+                // Update the entire ImageUrls collection if we have new images
+                if (imageUrls.Count > 0)
+                {
+                    updates.Add(updateBuilder.Set(p => p.ImageUrls, imageUrls));
                 }
             }
 
-            UpdateDefinition<Products> updateDefinition = updateBuilder.Combine(updates);
-
-            await _unitOfWork.GetCollection<Products>().FindOneAndUpdateAsync(product => product.Id == id, updateDefinition);
+            if (updates.Count > 0)
+            {
+                UpdateDefinition<Products> updateDefinition = updateBuilder.Combine(updates);
+                await _unitOfWork.GetCollection<Products>().FindOneAndUpdateAsync(product => product.Id == id, updateDefinition);
+            }
         }
 
         public async Task DeleteProductAsync(string id)
