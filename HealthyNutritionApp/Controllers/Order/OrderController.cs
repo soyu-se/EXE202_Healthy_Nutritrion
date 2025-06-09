@@ -1,10 +1,13 @@
 ﻿using HealthyNutritionApp.Application.Interfaces.Order;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthyNutritionApp.Controllers.Order
 {
     [Route("/api/v1/orders")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class OrderController : Controller
     {
         private readonly IOrderServices _orderServices;
@@ -18,7 +21,7 @@ namespace HealthyNutritionApp.Controllers.Order
         /// </summary>
         /// <param name="code"></param>
         /// <returns></returns>
-        [HttpGet("{code}")]
+        [Authorize(Roles = "Admin, User"), HttpGet("{code}")]
         public async Task<IActionResult> GetOrderInformation(int code) 
         {
             var result = await _orderServices.GetOrderDetails(code);
@@ -32,7 +35,7 @@ namespace HealthyNutritionApp.Controllers.Order
         /// <param name="pageIndex"></param>
         /// <param name="limit"></param>
         /// <returns></returns>
-        [HttpGet()]
+        [Authorize(Roles = "Admin"), HttpGet()]
         public async Task<IActionResult> GetAllOrders([FromQuery] int pageIndex = 1, [FromQuery] int limit = 10)
         {
             var result = await _orderServices.GetOrderList(pageIndex, limit);
@@ -43,7 +46,7 @@ namespace HealthyNutritionApp.Controllers.Order
         /// Lấy tất cả đơn hàng của người dùng đã đăng nhập
         /// </summary>
         /// <returns></returns>
-        [HttpGet("by-user")]
+        [Authorize(Roles = "User"), HttpGet("by-user")]
         public async Task<IActionResult> GetAllOrderByUser()
         {
             var result = await _orderServices.GetUserOrderList();

@@ -28,11 +28,24 @@ namespace HealthyNutritionApp.Infrastructure.Services.Order
 
         public async Task<OrderInformationResponse> GetOrderDetails(int orderCode)
         {
-            Orders order = await _unitOfWork.GetCollection<Orders>().Find(o => o.PayOSOrderCode == orderCode).FirstOrDefaultAsync() ?? throw new NotFoundCustomException("Order is not exist!");
+            Orders orders = await _unitOfWork.GetCollection<Orders>().Find(o => o.PayOSOrderCode == orderCode).FirstOrDefaultAsync() ?? throw new NotFoundCustomException("Order is not exist!");
+
+            var productIds = orders.Items.Select(i => i.ProductId).Distinct();
+
+            var products = await _unitOfWork.GetCollection<Products>().Find(p => productIds.Contains(p.Id)).ToListAsync();
 
             Log.Information("The order with {OrderCode} is not exist in the system!", orderCode);
             //Map order vao order info response
-            OrderInformationResponse response = _mapper.Map<OrderInformationResponse>(order);
+            OrderInformationResponse response = _mapper.Map<OrderInformationResponse>(orders);
+
+            foreach (var cartItem in response.Items)
+            {
+                var product = products.FirstOrDefault(p => p.Id == cartItem.ProductId);
+                if (product != null && product.ImageUrls != null && product.ImageUrls.Any())
+                {
+                    cartItem.ProductImageUrl = product.ImageUrls.First();
+                }
+            }
 
             return response;
         }
@@ -57,7 +70,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Order
             };
         }
 
-        public async Task<IEnumerable<OrderInformationRequest>> GetUserOrderList()
+        public async Task<PaginatedResult<OrderListResponse>> GetUserOrderList()
         {
             string userId = _httpContextAccessor.HttpContext.User.FindFirst("Id")?.Value
                             ?? throw new UnauthorizedCustomException("Your session is limit, you must login again to edit profile!");
@@ -67,28 +80,15 @@ namespace HealthyNutritionApp.Infrastructure.Services.Order
             query = query.Where(o => o.UserId == userId);
 
             IEnumerable<Orders> orders = await query.ToListAsync();
+            IEnumerable<OrderListResponse> orderResponseList = _mapper.Map<IEnumerable<OrderListResponse>>(orders);
 
-            // Fetch all product details to map ProductImageUrl
-            var productIds = orders.SelectMany(o => o.Items.Select(i => i.ProductId)).Distinct();
-            var products = await _unitOfWork.GetCollection<Products>().Find(p => productIds.Contains(p.Id)).ToListAsync();
+            long totalCount = await _unitOfWork.GetCollection<Orders>().CountDocumentsAsync(o => o.Status == "PAID");
 
-            IEnumerable<OrderInformationRequest> orderRequestList = orders.Select(order =>
+            return new PaginatedResult<OrderListResponse>
             {
-                var orderRequest = _mapper.Map<OrderInformationRequest>(order);
-
-                foreach (var cartItem in orderRequest.Items)
-                {
-                    var product = products.FirstOrDefault(p => p.Id == cartItem.ProductId);
-                    if (product != null && product.ImageUrls != null && product.ImageUrls.Any())
-                    {
-                        cartItem.ProductImageUrl = product.ImageUrls.First();
-                    }
-                }
-
-                return orderRequest;
-            });
-
-            return orderRequestList;
+                Items = orderResponseList,
+                TotalCount = totalCount
+            };
         }
     }
 }
