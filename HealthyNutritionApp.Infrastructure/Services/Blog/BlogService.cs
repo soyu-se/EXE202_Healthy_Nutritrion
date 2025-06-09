@@ -121,11 +121,16 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
                 ?? throw new KeyNotFoundException($"No blog found with ID: {id}");
 
             UpdateDefinitionBuilder<Blogs> updateBuilder = Builders<Blogs>.Update;
+            List<UpdateDefinition<Blogs>> updates = [];
 
-            // Generate new slug if title is changed
+            // Only process title update if it's provided and different
             string newSlug = null;
-            if (existingBlog.Title != updateBlogDto.Title)
+            if (updateBlogDto.Title != null && existingBlog.Title != updateBlogDto.Title)
             {
+                // Add title update
+                updates.Add(updateBuilder.Set(b => b.Title, updateBlogDto.Title));
+                
+                // Generate new slug when title changes
                 newSlug = CreateSlug(updateBlogDto.Title);
 
                 // Check if new slug already exists (excluding current blog)
@@ -138,23 +143,28 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
                     // Append a unique identifier to make the slug unique
                     newSlug = $"{newSlug}-{DateTime.Now.Ticks.ToString("x")}";
                 }
-            }
-
-            List<UpdateDefinition<Blogs>> updates =
-            [
-                updateBuilder.Set(b => b.Title, updateBlogDto.Title),
-                updateBuilder.Set(b => b.Content, updateBlogDto.Content),
-                updateBuilder.Set(b => b.Excerpt, updateBlogDto.Excerpt),
-                updateBuilder.Set(b => b.Tags, updateBlogDto.Tags),
-                updateBuilder.Set(b => b.UpdatedAt, TimeControl.GetUtcPlus7Time()),
-            ];
-
-            // Add slug update if title changed
-            if (newSlug != null)
-            {
+                
+                // Add slug update
                 updates.Add(updateBuilder.Set(b => b.Slug, newSlug));
             }
 
+            // Add other updates only if fields are provided
+            if (updateBlogDto.Content != null)
+            {
+                updates.Add(updateBuilder.Set(b => b.Content, updateBlogDto.Content));
+            }
+            
+            if (updateBlogDto.Excerpt != null)
+            {
+                updates.Add(updateBuilder.Set(b => b.Excerpt, updateBlogDto.Excerpt));
+            }
+            
+            if (updateBlogDto.Tags != null)
+            {
+                updates.Add(updateBuilder.Set(b => b.Tags, updateBlogDto.Tags));
+            }
+
+            // Process image updates if provided
             if (updateBlogDto.ImageBlog != null && updateBlogDto.ImageBlog.Any())
             {
                 List<string> imageUrls = [];
@@ -167,10 +177,21 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
                 updates.Add(updateBuilder.Set(b => b.Images, imageUrls));
             }
 
-            UpdateDefinition<Blogs> updateDefinition = updateBuilder.Combine(updates);
+            // Only perform update if there are changes to make
+            if (updates.Count > 0)
+            {
+                // Always update the UpdatedAt timestamp when changes are made
+                updates.Add(updateBuilder.Set(b => b.UpdatedAt, TimeControl.GetUtcPlus7Time()));
+                
+                UpdateDefinition<Blogs> updateDefinition = updateBuilder.Combine(updates);
 
-            await _unitOfWork.GetCollection<Blogs>()
-                .UpdateOneAsync(b => b.Id == id, updateDefinition);
+                await _unitOfWork.GetCollection<Blogs>()
+                    .UpdateOneAsync(b => b.Id == id, updateDefinition);
+            }
+            else
+            {
+                throw new BadRequestCustomException("No fields provided for update");
+            }
         }
 
         public async Task DeleteBlogAsync(string id)

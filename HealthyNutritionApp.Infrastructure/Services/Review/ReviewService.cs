@@ -146,18 +146,50 @@ namespace HealthyNutritionApp.Infrastructure.Services.Review
 
         public async Task UpdateReviewAsync(string id, UpdateReviewDto updateReviewDto)
         {
-            // Cập nhật đánh giá theo ID
-            UpdateDefinition<Reviews> updateDefinition = Builders<Reviews>.Update
-                .Set(r => r.Rating, updateReviewDto.Rating)
-                .Set(r => r.Comment, updateReviewDto.Comment)
-                .Set(r => r.UpdatedAt, TimeControl.GetUtcPlus7Time());
+            // Get the existing review first to confirm it exists
+            Reviews? existingReview = await _unitOfWork.GetCollection<Reviews>()
+                .Find(r => r.Id == id)
+                .FirstOrDefaultAsync();
 
-            UpdateResult result = await _unitOfWork.GetCollection<Reviews>()
-                .UpdateOneAsync(r => r.Id == id, updateDefinition);
-
-            if (result.ModifiedCount == 0)
+            if (existingReview == null)
             {
-                throw new NotFoundCustomException("Review not found or no changes made");
+                throw new NotFoundCustomException("Review not found");
+            }
+
+            // Build update definition dynamically based on provided values
+            UpdateDefinitionBuilder<Reviews> updateBuilder = Builders<Reviews>.Update;
+            List<UpdateDefinition<Reviews>> updates = new List<UpdateDefinition<Reviews>>();
+
+            // For Rating (double type), check if it's a valid rating value (typically 1-5)
+            if (updateReviewDto.Rating >= 1 && updateReviewDto.Rating <= 5)
+            {
+                updates.Add(updateBuilder.Set(r => r.Rating, updateReviewDto.Rating));
+            }
+
+            // Only update Comment if it's not null
+            if (updateReviewDto.Comment != null)
+            {
+                updates.Add(updateBuilder.Set(r => r.Comment, updateReviewDto.Comment));
+            }
+
+            // Always update the UpdatedAt timestamp when making changes
+            updates.Add(updateBuilder.Set(r => r.UpdatedAt, TimeControl.GetUtcPlus7Time()));
+
+            if (updates.Count > 1) // > 1 because we always add UpdatedAt
+            {
+                UpdateDefinition<Reviews> updateDefinition = updateBuilder.Combine(updates);
+
+                UpdateResult result = await _unitOfWork.GetCollection<Reviews>()
+                    .UpdateOneAsync(r => r.Id == id, updateDefinition);
+
+                if (result.ModifiedCount == 0)
+                {
+                    throw new NotFoundCustomException("No changes were made to the review");
+                }
+            }
+            else
+            {
+                throw new BadRequestCustomException("No valid properties were provided for update");
             }
         }
 
