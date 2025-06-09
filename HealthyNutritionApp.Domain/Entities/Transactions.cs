@@ -9,11 +9,8 @@ namespace HealthyNutritionApp.Domain.Entities
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
-
-        [BsonRepresentation(BsonType.ObjectId)]
         public long OrderCode { get; set; }
         public decimal OrderAmount { get; set; }
-        public int OrderTotal { get; set; }
 
         public string BankAccountNumber { get; set; }
 
