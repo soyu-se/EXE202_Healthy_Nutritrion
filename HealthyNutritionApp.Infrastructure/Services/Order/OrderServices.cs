@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using CloudinaryDotNet.Actions;
 using HealthyNutritionApp.Application.Dto.Order;
 using HealthyNutritionApp.Application.Dto.PaginatedResult;
 using HealthyNutritionApp.Application.Exceptions;
 using HealthyNutritionApp.Application.Interfaces;
 using HealthyNutritionApp.Application.Interfaces.Order;
 using HealthyNutritionApp.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using Serilog;
@@ -15,11 +17,13 @@ namespace HealthyNutritionApp.Infrastructure.Services.Order
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public OrderServices(IUnitOfWork unitOfWork, IMapper mapper)
+        public OrderServices(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<OrderInformationResponse> GetOrderDetails(int orderCode)
@@ -51,6 +55,40 @@ namespace HealthyNutritionApp.Infrastructure.Services.Order
                 Items = orderResponseList,
                 TotalCount = totalCount
             };
+        }
+
+        public async Task<IEnumerable<OrderInformationRequest>> GetUserOrderList()
+        {
+            string userId = _httpContextAccessor.HttpContext.User.FindFirst("Id")?.Value
+                            ?? throw new UnauthorizedCustomException("Your session is limit, you must login again to edit profile!");
+
+            IQueryable<Orders> query = _unitOfWork.GetCollection<Orders>().AsQueryable();
+
+            query = query.Where(o => o.UserId == userId);
+
+            IEnumerable<Orders> orders = await query.ToListAsync();
+
+            // Fetch all product details to map ProductImageUrl
+            var productIds = orders.SelectMany(o => o.Items.Select(i => i.ProductId)).Distinct();
+            var products = await _unitOfWork.GetCollection<Products>().Find(p => productIds.Contains(p.Id)).ToListAsync();
+
+            IEnumerable<OrderInformationRequest> orderRequestList = orders.Select(order =>
+            {
+                var orderRequest = _mapper.Map<OrderInformationRequest>(order);
+
+                foreach (var cartItem in orderRequest.Items)
+                {
+                    var product = products.FirstOrDefault(p => p.Id == cartItem.ProductId);
+                    if (product != null && product.ImageUrls != null && product.ImageUrls.Any())
+                    {
+                        cartItem.ProductImageUrl = product.ImageUrls.First();
+                    }
+                }
+
+                return orderRequest;
+            });
+
+            return orderRequestList;
         }
     }
 }

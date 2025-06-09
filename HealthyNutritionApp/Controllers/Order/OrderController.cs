@@ -38,5 +38,16 @@ namespace HealthyNutritionApp.Controllers.Order
             var result = await _orderServices.GetOrderList(pageIndex, limit);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Lấy tất cả đơn hàng của người dùng đã đăng nhập
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("by-user")]
+        public async Task<IActionResult> GetAllOrderByUser()
+        {
+            var result = await _orderServices.GetUserOrderList();
+            return Ok(result);
+        }
     }
 }

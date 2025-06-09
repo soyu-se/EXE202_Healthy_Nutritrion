@@ -112,7 +112,8 @@ namespace HealthyNutritionApp.Infrastructure.Services.Payment
             //00 la thanh cong; 01 la that bai do sai tham so
             if (webhookType.success)
             {
-                updateDefinition = Builders<Orders>.Update.Set(o => o.Status, "PAID");
+                updateDefinition = Builders<Orders>.Update.Set(o => o.Status, "PAID")
+                                                          .Set(o => o.TotalAmount, data.amount);
                 await _unitOfWork.GetCollection<Orders>().UpdateOneAsync(o => o.PayOSOrderCode == data.orderCode, updateDefinition);
                 Log.Information("Order {OrderId} paid successfully at {TimeNow}", data.orderCode, DateTime.Now);
 
@@ -125,10 +126,12 @@ namespace HealthyNutritionApp.Infrastructure.Services.Payment
                     PaymentStatus = "PAID",
                     CreatedAt = DateTime.Parse(data.transactionDateTime)
                 };
+                await _unitOfWork.GetCollection<Transactions>().InsertOneAsync(transaction);
                 return;
             }
 
-            updateDefinition = Builders<Orders>.Update.Set(o => o.Status, "CANCELLED");
+            updateDefinition = Builders<Orders>.Update.Set(o => o.Status, "FAILED")
+                                                      .Set(o => o.TotalAmount, data.amount);
             await _unitOfWork.GetCollection<Orders>().UpdateOneAsync(o => o.PayOSOrderCode == data.orderCode, updateDefinition);
             Log.Error("Order {OrderId} is cancelled by causing error in payment progress!");
             return;
