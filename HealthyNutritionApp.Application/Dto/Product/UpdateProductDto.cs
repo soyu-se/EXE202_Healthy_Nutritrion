@@ -13,6 +13,6 @@ namespace HealthyNutritionApp.Application.Dto.Product
         public List<string> CategoryIds { get; set; } // ID danh mục sản phẩm
         public List<string> Tags { get; set; } = []; // Danh sách thẻ sản phẩm
         public NutritionFact NutritionFact { get; set; } // Thông tin dinh dưỡng sản phẩm
-        public IFormFileCollection ImageProduct { get; set; } // Hình ảnh sản phẩm
+        public IFormFileCollection? ImageProduct { get; set; } // Hình ảnh sản phẩm
     }
 }
