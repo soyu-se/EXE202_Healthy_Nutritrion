@@ -16,9 +16,25 @@ namespace HealthyNutritionApp.Infrastructure.Services.Transaction
             _unitOfWork = unitOfWork;
         }
 
+        public async Task<TransactionDto> GetTransactionsAsync()
+        {
+            long totalCountTransactions = await _unitOfWork.GetCollection<Transactions>().CountDocumentsAsync(FilterDefinition<Transactions>.Empty);
+
+            decimal totalCountRevenues = (await _unitOfWork.GetCollection<Transactions>()
+                .Aggregate()
+                .Group(t => 1, g => new { TotalRevenue = g.Sum(t => t.OrderAmount) })
+                .FirstOrDefaultAsync())?.TotalRevenue ?? 0;
+
+            return new TransactionDto
+            {
+                TotalCountTransactions = totalCountTransactions,
+                TotalCountRevenues = totalCountRevenues
+            };
+        }
+
         public async Task<IEnumerable<TransactionRevenueByDayResponse>> GetTransactionRevenueByDay(DateOnly fromDate, DateOnly toDate)
         {
-            if(fromDate > toDate)
+            if (fromDate > toDate)
             {
                 throw new BadRequestCustomException("From Date must be less than or equal to Final Date");
             }

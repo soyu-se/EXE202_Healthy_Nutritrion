@@ -28,9 +28,11 @@ namespace HealthyNutritionApp.Controllers.Dashboard
             // Lấy tổng số lượng phản hồi
             long totalCountFeedbacks = await _feedbackService.GetTotalCountFeedbackAsync();
 
-            long totalCountTransactions = 0;
+            var transactionDto = await _transactionServices.GetTransactionsAsync();
 
-            long totalCountRevenues = 0;
+            long totalCountTransactions = transactionDto.TotalCountTransactions;
+
+            decimal totalCountRevenues = transactionDto.TotalCountRevenues;
 
             // Trả về dữ liệu dashboard
             return Ok(new
