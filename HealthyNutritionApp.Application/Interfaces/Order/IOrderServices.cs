@@ -7,6 +7,6 @@ namespace HealthyNutritionApp.Application.Interfaces.Order
     {
         Task<OrderInformationResponse> GetOrderDetails(int orderCode);
         Task<PaginatedResult<OrderListResponse>> GetOrderList(int pageIndex = 1, int limit = 10);
-        Task<IEnumerable<OrderInformationRequest>> GetUserOrderList();
+        Task<PaginatedResult<OrderListResponse>> GetUserOrderList();
     }
 }
