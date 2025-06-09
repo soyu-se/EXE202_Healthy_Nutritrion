@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HealthyNutritionApp.Controllers.Feedback
 {
-    [Route("api/feedbacks")]
+    [Route("api/v1/feedbacks")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] //"Bearer"
     public class FeedbackController(IFeedbackService feedbackService) : ControllerBase
