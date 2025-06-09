@@ -54,14 +54,14 @@ namespace HealthyNutritionApp.Infrastructure.Services.Order
         {
             IQueryable<Orders> query = _unitOfWork.GetCollection<Orders>().AsQueryable();
 
-            query = query.Where(o => o.Status == "PAID");
+            query = query.Where(o => o.Status == "PAID" || o.Status == "CANCELLED");
 
             query = query.Skip((pageIndex - 1) * limit).Take(limit);
 
             IEnumerable<Orders> orders = await query.ToListAsync();
             IEnumerable<OrderListResponse> orderResponseList = _mapper.Map<IEnumerable<OrderListResponse>>(orders);
 
-            long totalCount = await _unitOfWork.GetCollection<Orders>().CountDocumentsAsync(o => o.Status == "PAID");
+            long totalCount = orderResponseList.Count();
 
             return new PaginatedResult<OrderListResponse>
             {
@@ -79,10 +79,12 @@ namespace HealthyNutritionApp.Infrastructure.Services.Order
 
             query = query.Where(o => o.UserId == userId);
 
+            query = query.Where(o => o.Status == "PAID" || o.Status == "CANCELLED");
+
             IEnumerable<Orders> orders = await query.ToListAsync();
             IEnumerable<OrderListResponse> orderResponseList = _mapper.Map<IEnumerable<OrderListResponse>>(orders);
 
-            long totalCount = await _unitOfWork.GetCollection<Orders>().CountDocumentsAsync(o => o.Status == "PAID");
+            long totalCount = orderResponseList.Count();
 
             return new PaginatedResult<OrderListResponse>
             {
@@ -90,5 +92,6 @@ namespace HealthyNutritionApp.Infrastructure.Services.Order
                 TotalCount = totalCount
             };
         }
+
     }
 }

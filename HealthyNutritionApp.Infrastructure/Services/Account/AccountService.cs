@@ -2,6 +2,7 @@
 using CloudinaryDotNet.Actions;
 using HealthyNutritionApp.Application.Dto.Account;
 using HealthyNutritionApp.Application.Dto.PaginatedResult;
+using HealthyNutritionApp.Application.Dto.Transaction;
 using HealthyNutritionApp.Application.Exceptions;
 using HealthyNutritionApp.Application.Interfaces;
 using HealthyNutritionApp.Application.Interfaces.Account;
@@ -195,6 +196,29 @@ namespace HealthyNutritionApp.Infrastructure.Services.Account
             }
         }
         #endregion
+
+        public async Task<IEnumerable<AccountRegisterCountingResponse>> AccountRegisterCountingResponses(DateOnly fromDate, DateOnly toDate)
+        {
+            if (fromDate > toDate)
+            {
+                throw new BadRequestCustomException("From Date must be less than or equal to Final Date");
+            }
+
+            var accounts = await _unitOfWork.GetCollection<Users>()
+                .Find(t => t.CreatedAt.Date >= fromDate.ToDateTime(TimeOnly.MinValue) && t.CreatedAt.Date <= toDate.ToDateTime(TimeOnly.MaxValue))
+                .ToListAsync();
+
+            var signUpNumberByDays = accounts
+                .GroupBy(t => DateOnly.FromDateTime(t.CreatedAt))
+                .Select(g => new AccountRegisterCountingResponse
+                {
+                    Date = g.Key,
+                    SignUpNumber = g.Count(t => DateOnly.FromDateTime(t.CreatedAt) == g.Key)
+                })
+                .OrderBy(r => r.Date)
+                .ToList();
+            return signUpNumberByDays;
+        }
 
         private void ValidateInput(string userId, string fullName, string phoneNumber)
         {

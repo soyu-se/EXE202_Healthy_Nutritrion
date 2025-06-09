@@ -65,8 +65,6 @@ namespace HealthyNutritionApp
                     //    // Đường dẫn đến file JSON của Swagger
                     options.SwaggerEndpoint("/swagger/v1/swagger.json", "HealthyNutrition API V1");
 
-                    options.HeadContent = "ngrok-skip-browser-warning";
-
                     // Inject JavaScript để chuyển đổi theme
                     //options.InjectJavascript("/theme-switcher.js");
 

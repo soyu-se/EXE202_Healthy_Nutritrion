@@ -5,6 +5,7 @@ namespace HealthyNutritionApp.Application.Interfaces.Account
 {
     public interface IAccountService
     {
+        Task<IEnumerable<AccountRegisterCountingResponse>> AccountRegisterCountingResponses(DateOnly fromDate, DateOnly toDate);
         Task CreateUserAsync(CreateUserDto createUserDto);
         Task DeleteUserAsync(string userId);
         Task EditProfileAsync(EditProfileDto editProfileDto);

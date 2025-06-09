@@ -13,6 +13,7 @@ using HealthyNutritionApp.Application.Interfaces.Order;
 using HealthyNutritionApp.Application.Interfaces.Payment;
 using HealthyNutritionApp.Application.Interfaces.Product;
 using HealthyNutritionApp.Application.Interfaces.Review;
+using HealthyNutritionApp.Application.Interfaces.Transaction;
 using HealthyNutritionApp.Application.Mapper;
 using HealthyNutritionApp.Application.ThirdPartyServices.Cloudinary;
 using HealthyNutritionApp.Domain.Enums.SchemaFilter;
@@ -27,6 +28,7 @@ using HealthyNutritionApp.Infrastructure.Services.Order;
 using HealthyNutritionApp.Infrastructure.Services.Payment;
 using HealthyNutritionApp.Infrastructure.Services.Product;
 using HealthyNutritionApp.Infrastructure.Services.Review;
+using HealthyNutritionApp.Infrastructure.Services.Transaction;
 using HealthyNutritionApp.Infrastructure.ThirdPartyServices.Cloudinaries;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -121,6 +123,7 @@ namespace HealthyNutritionApp.Infrastructure.DependencyInjection
             services.AddScoped<IJsonWebToken, JsonWebToken>();
             services.AddScoped<IOrderServices, OrderServices>();
             services.AddScoped<IPaymentServices, PaymentServices>();
+            services.AddScoped<ITransactionServices, TransactionServices>();
 
             services.AddHttpContextAccessor();
             //services.AddScoped<IRedisCache, RedisCacheService>();
