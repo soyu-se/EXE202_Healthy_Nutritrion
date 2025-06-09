@@ -24,7 +24,6 @@ namespace HealthyNutritionApp.Application.Dto.Order
         public string ProductName { get; set; }
         public int Quantity { get; set; }
         public int PricePerUnit { get; set; }
-        public string ProductImageUrl { get; set; }
 
         public void Mapping(Profile profile)
         {
