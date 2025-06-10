@@ -5,6 +5,7 @@ namespace HealthyNutritionApp.Application.Interfaces.Review
 {
     public interface IReviewService
     {
+        Task<bool> CheckBoughtProduct(string userId, string productId);
         Task DeleteReviewAsync(string reviewId);
         Task<ReviewDto> GetReviewByIdAsync(string reviewId);
         Task<PaginatedResult<ReviewDto>> GetReviewsAsync(ReviewFilterDto reviewFilterDto, int pageIndex = 1, int limit = 10);

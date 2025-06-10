@@ -31,6 +31,13 @@ namespace HealthyNutritionApp.Controllers.Review
             return Ok(new { message = $"Review with ID {id} retrieved successfully", review });
         }
 
+        [AllowAnonymous, HttpGet("confirmation")]
+        public async Task<IActionResult> CheckBoughtProduct([FromQuery] string userId, [FromQuery] string productId)
+        {
+            bool hasBought = await _reviewService.CheckBoughtProduct(userId, productId);
+            return Ok(new { message = hasBought });
+        }
+
         [AllowAnonymous, HttpPost]
         public async Task<IActionResult> CreateReviewAsync([FromBody] CreateReviewDto reviewDto)
         {
