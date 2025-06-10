@@ -31,7 +31,7 @@ namespace HealthyNutritionApp.Controllers.Review
             return Ok(new { message = $"Review with ID {id} retrieved successfully", review });
         }
 
-        [HttpPost]
+        [AllowAnonymous, HttpPost]
         public async Task<IActionResult> CreateReviewAsync([FromBody] CreateReviewDto reviewDto)
         {
             await _reviewService.PostReviewAsync(reviewDto);
@@ -45,7 +45,7 @@ namespace HealthyNutritionApp.Controllers.Review
             return Ok(new { message = "Review updated successfully" });
         }
 
-        [AllowAnonymous, HttpDelete("{id}")]
+        [Authorize(Roles = "Admin"), HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReviewAsync(string id)
         {
             await _reviewService.DeleteReviewAsync(id);

@@ -20,8 +20,8 @@ namespace HealthyNutritionApp.Domain.Entities
         public string Comment { get; set; }
 
         [BsonRepresentation(BsonType.DateTime)]
-        public DateTime CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
         [BsonRepresentation(BsonType.DateTime)]
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }
