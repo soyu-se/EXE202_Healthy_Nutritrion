@@ -11,6 +11,8 @@ namespace HealthyNutritionApp.Application.Dto.Product
 
         public double Price { get; set; }
 
+        public List<double> Weights { get; set; } = [];
+
         public List<string> CategoryIds { get; set; }
 
         public string Brand { get; set; }
@@ -19,7 +21,7 @@ namespace HealthyNutritionApp.Application.Dto.Product
 
         public int StockQuantity { get; set; }
 
-        public IFormFileCollection ImageProduct { get; set; }
+        public IFormFileCollection? ImageProduct { get; set; }
 
         public NutritionFact NutritionFact { get; set; }
     }

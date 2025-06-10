@@ -9,6 +9,7 @@ namespace HealthyNutritionApp.Application.Dto.Product
         public string Description { get; set; } // Mô tả sản phẩm
         public string Brand { get; set; } // Thương hiệu sản phẩm
         public double Price { get; set; } // Giá sản phẩm
+        public List<double> Weights { get; set; } = []; // Danh sách trọng lượng sản phẩm
         public int StockQuantity { get; set; } // Số lượng tồn kho
         public List<string> CategoryIds { get; set; } // ID danh mục sản phẩm
         public List<string> Tags { get; set; } = []; // Danh sách thẻ sản phẩm

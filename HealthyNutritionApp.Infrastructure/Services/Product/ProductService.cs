@@ -52,6 +52,12 @@ namespace HealthyNutritionApp.Infrastructure.Services.Product
                 query = query.Where(p => p.Tags != null && p.Tags.Any(t => productFilterDto.Tags.Contains(t)));
             }
 
+            // Lọc theo trọng lượng
+            if (productFilterDto.Weights != null && productFilterDto.Weights.Count > 0)
+            {
+                query = query.Where(p => p.Weights != null && p.Weights.Any(w => productFilterDto.Weights.Contains(w)));
+            }
+
             // Lọc theo khoảng giá
             if (productFilterDto.MinPrice.HasValue)
             {
@@ -93,14 +99,14 @@ namespace HealthyNutritionApp.Infrastructure.Services.Product
             // Lấy tổng số sản phẩm để tính toán phân trang
             long totalCount = await _unitOfWork.GetCollection<Products>()
                 .CountDocumentsAsync(p => (string.IsNullOrEmpty(productFilterDto.SearchTerm) ||
-                                           p.Name.Contains(productFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase) ||
-                                           p.Description.Contains(productFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase)) &&
+                                           p.Name.Contains(productFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase)) &&
                                           (productFilterDto.CategoryIds == null || !productFilterDto.CategoryIds.Any() ||
                                            (p.CategoryIds != null && p.CategoryIds.Any(c => productFilterDto.CategoryIds.Contains(c)))) &&
                                           (string.IsNullOrEmpty(productFilterDto.Brand) ||
                                            p.Brand.Contains(productFilterDto.Brand, StringComparison.CurrentCultureIgnoreCase)) &&
                                           (productFilterDto.Tags == null || !productFilterDto.Tags.Any() ||
-                                           (p.Tags != null && p.Tags.Any(t => productFilterDto.Tags.Contains(t)))) &&
+                                           (p.Tags != null && p.Tags.Any(t => productFilterDto.Tags.Contains(t)))) && 
+                                           p.Weights != null && p.Weights.Any() &&
                                           (!productFilterDto.MinPrice.HasValue || p.Price >= productFilterDto.MinPrice.Value) &&
                                           (!productFilterDto.MaxPrice.HasValue || p.Price <= productFilterDto.MaxPrice.Value) &&
                                           (!productFilterDto.MinStockQuantity.HasValue || p.StockQuantity >= productFilterDto.MinStockQuantity.Value) &&
@@ -132,6 +138,11 @@ namespace HealthyNutritionApp.Infrastructure.Services.Product
                 throw new BadRequestCustomException("Product already exists");
             }
 
+            if(productDto.Weights.Count < 1)
+            {
+                throw new BadRequestCustomException("Weights must contain at least one weight value");
+            }
+
             // Upload ảnh lên Cloudinary
             List<string> imageUrls = [];
             if (productDto.ImageProduct is not null && productDto.ImageProduct.Count > 0)
@@ -148,6 +159,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Product
                 Name = productDto.Name,
                 Description = productDto.Description,
                 Price = productDto.Price,
+                Weights = productDto.Weights,
                 CategoryIds = productDto.CategoryIds,
                 Brand = productDto.Brand,
                 Tags = productDto.Tags,
@@ -188,7 +200,12 @@ namespace HealthyNutritionApp.Infrastructure.Services.Product
             {
                 updates.Add(updateBuilder.Set(p => p.Price, updateProductDto.Price));
             }
-            
+
+            if (updateProductDto.Weights != null && updateProductDto.Weights.Count > 0)
+            {
+                updates.Add(updateBuilder.Set(p => p.Weights, updateProductDto.Weights));
+            }
+
             if (updateProductDto.StockQuantity >= 0) // Allow setting stock to 0
             {
                 updates.Add(updateBuilder.Set(p => p.StockQuantity, updateProductDto.StockQuantity));

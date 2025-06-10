@@ -6,6 +6,7 @@
         public List<string>? CategoryIds { get; set; } // Danh sách ID danh mục sản phẩm
         public string? Brand { get; set; } // Thương hiệu sản phẩm
         public List<string>? Tags { get; set; } // Danh sách thẻ sản phẩm
+        public List<double>? Weights { get; set; } = []; // Danh sách trọng lượng sản phẩm
         public double? MinPrice { get; set; } // Giá tối thiểu
         public double? MaxPrice { get; set; } // Giá tối đa
         public int? MinStockQuantity { get; set; } // Số lượng tồn kho tối thiểu

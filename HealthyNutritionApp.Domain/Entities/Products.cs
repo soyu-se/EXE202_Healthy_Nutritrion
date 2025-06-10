@@ -15,6 +15,8 @@ namespace HealthyNutritionApp.Domain.Entities
 
         public double Price { get; set; }
 
+        public List<double> Weights { get; set; }
+
         [BsonRepresentation(BsonType.ObjectId)]
         public List<string> CategoryIds { get; set; }
 
