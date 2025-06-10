@@ -5,6 +5,7 @@ namespace HealthyNutritionApp.Application.Dto.Account
 {
     public class UserProfileDto : IMapFrom<Users>
     {
+        public string? Id { get; set; } // Unique identifier for the user
         public string? FullName { get; set; }
         public string? Email { get; set; }
         public string? PhoneNumber { get; set; }

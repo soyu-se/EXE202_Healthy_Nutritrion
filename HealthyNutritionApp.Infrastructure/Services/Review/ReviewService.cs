@@ -126,7 +126,8 @@ namespace HealthyNutritionApp.Infrastructure.Services.Review
                 ProductId = createReviewDto.ProductId,
                 Rating = createReviewDto.Rating,
                 Comment = createReviewDto.Comment,
-                CreatedAt = TimeControl.GetUtcPlus7Time()
+                CreatedAt = TimeControl.GetUtcPlus7Time(),
+                UpdatedAt = null
             };
 
             long reviewCount = await _unitOfWork.GetCollection<Reviews>()
