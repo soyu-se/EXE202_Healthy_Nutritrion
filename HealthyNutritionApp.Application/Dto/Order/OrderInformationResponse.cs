@@ -30,9 +30,11 @@ namespace HealthyNutritionApp.Application.Dto.Order
 
         public int Quantity { get; set; }
 
-        public decimal PricePerUnit { get; set; }
+        public decimal PricePerKilogram { get; set; }
 
         public string ProductImageUrl { get; set; }
+
+        public double Weight { get; set; }
 
         public void Mapping(Profile profile)
         {
@@ -40,7 +42,8 @@ namespace HealthyNutritionApp.Application.Dto.Order
                    .ForMember(dest => dest.ProductId, opt => opt.MapFrom(oir => oir.ProductId))
                    .ForMember(dest => dest.ProductName, opt => opt.MapFrom(oir => oir.ProductName))
                    .ForMember(dest => dest.Quantity, opt => opt.MapFrom(oir => oir.Quantity))
-                   .ForMember(dest => dest.PricePerUnit, opt => opt.MapFrom(oir => oir.PricePerUnit))
+                   .ForMember(dest => dest.PricePerKilogram, opt => opt.MapFrom(oir => oir.PricePerKilogram))
+                   .ForMember(dest => dest.Weight, opt => opt.MapFrom(oir => oir.Weight))
                    .ReverseMap();
         }
     }

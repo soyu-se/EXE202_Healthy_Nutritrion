@@ -49,13 +49,13 @@ namespace HealthyNutritionApp.Infrastructure.Services.Payment
             //Lay tat ca items trong cartItem vaf add vao List
             foreach (CartItems cartItems in GetCartItems(request.OrderInformation.Items))
             {
-                ItemData itemData = new ItemData(cartItems.ProductName, cartItems.Quantity, cartItems.PricePerUnit);
+                ItemData itemData = new ItemData(cartItems.ProductName, cartItems.Quantity, (int)(cartItems.PricePerKilogram * cartItems.Weight * cartItems.Quantity));
                 items.Add(itemData);
             }
 
 
             //Lay tong amount tat ca san pham trong cart
-            int cartAmount = request.OrderInformation.Items.Sum(item => item.Quantity * item.PricePerUnit);
+            int cartAmount = (int)request.OrderInformation.Items.Sum(item => item.Quantity * item.PricePerKilogram * item.Weight);
 
             Log.Information("total amount of cart is: {CartAmount}", cartAmount);
 
@@ -63,7 +63,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Payment
             PaymentData paymentData = new(
                     orderCode: orderCode,
                     amount: cartAmount,
-                    description: "Healthy Nutrition Payment",
+                    description: $"Thanh toán #{orderCode}",
                     items: items,
                     cancelUrl: request.CancelUrl,
                     returnUrl: request.ReturnUrl,
@@ -72,9 +72,11 @@ namespace HealthyNutritionApp.Infrastructure.Services.Payment
 
             Orders order = _mapper.Map<OrderInformationRequest, Orders>(request.OrderInformation);
 
-            order.PayOSOrderCode = orderCode;
-
             order.UserId = _contextAccessor.HttpContext?.User.FindFirst("Id")?.Value ?? throw new UnauthorizedCustomException("Your session is limit, please log in again to continue!");
+
+            order.TotalAmount = cartAmount;
+
+            order.PayOSOrderCode = orderCode;  
 
             order.Status = "PENDING";
 

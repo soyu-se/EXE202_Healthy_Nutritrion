@@ -7,13 +7,11 @@ namespace HealthyNutritionApp.Application.Dto.Order
     public class OrderInformationRequest : IMapFrom<Orders>
     {
         public List<CartItems> Items { get; set; }
-        public decimal TotalAmount { get; set; }
 
         public void Mapping(Profile profile)
         {
             profile.CreateMap<OrderInformationRequest, Orders>()
                     .ForMember(dest => dest.Items, opt => opt.MapFrom(o => o.Items))
-                    .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(o => o.TotalAmount))
                     .ReverseMap();
         }
     }
@@ -22,8 +20,11 @@ namespace HealthyNutritionApp.Application.Dto.Order
     {
         public string ProductId { get; set; }
         public string ProductName { get; set; }
+
+        // kilogram sản phẩm
+        public double Weight { get; set; }
         public int Quantity { get; set; }
-        public int PricePerUnit { get; set; }
+        public int PricePerKilogram { get; set; }
 
         public void Mapping(Profile profile)
         {
@@ -31,7 +32,8 @@ namespace HealthyNutritionApp.Application.Dto.Order
                    .ForMember(dest => dest.ProductId, opt => opt.MapFrom(o => o.ProductId))
                    .ForMember(dest => dest.ProductName, opt => opt.MapFrom(o => o.ProductName))
                    .ForMember(dest => dest.Quantity, opt => opt.MapFrom(o => o.Quantity))
-                   .ForMember(dest => dest.PricePerUnit, opt => opt.MapFrom(o => o.PricePerUnit))
+                   .ForMember(dest => dest.Weight, opt => opt.MapFrom(o => o.Weight))
+                   .ForMember(dest => dest.PricePerKilogram, opt => opt.MapFrom(o => o.PricePerKilogram))
                    .ReverseMap();
         }
     }

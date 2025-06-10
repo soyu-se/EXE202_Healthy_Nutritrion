@@ -28,8 +28,10 @@ namespace HealthyNutritionApp.Domain.Entities
 
         public string ProductName { get; set; }
 
+        public double Weight { get; set; }
+
         public int Quantity { get; set; }
 
-        public decimal PricePerUnit { get; set; }
+        public decimal PricePerKilogram { get; set; }
     }
 }
