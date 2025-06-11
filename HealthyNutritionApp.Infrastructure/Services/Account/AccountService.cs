@@ -78,6 +78,20 @@ namespace HealthyNutritionApp.Infrastructure.Services.Account
         }
         #endregion
 
+        public async Task<UserProfileDto> GetUserProfileByIdAsync(string userId)
+        {
+            // Validate input parameters
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new ArgumentException("Invalid UserId parameters");
+            }
+            // Lấy thông tin người dùng từ DB
+            Users user = await _unitOfWork.GetCollection<Users>().Find(user => user.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
+            // Chuyển đổi sang DTO
+            UserProfileDto userProfileDto = _mapper.Map<UserProfileDto>(user);
+            return userProfileDto;
+        }
+
         #region CreateUserAsync
         public async Task CreateUserAsync(CreateUserDto createUserDto)
         {

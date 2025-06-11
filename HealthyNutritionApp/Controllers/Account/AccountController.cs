@@ -34,6 +34,13 @@ namespace HealthyNutritionApp.Controllers.Account
             return Ok(new { message = "User accounts retrieved successfully", result });
         }
 
+        [AllowAnonymous, HttpGet("profile/{id}")]
+        public async Task<IActionResult> GetUserById(string id)
+        {
+            var result = await _accountService.GetUserProfileByIdAsync(id);
+            return Ok(new { message = "User account retrieved successfully", result });
+        }
+
         [Authorize(Roles = "Admin"), HttpPost]
         public async Task<IActionResult> CreateAccount(CreateUserDto createUserDto)
         {

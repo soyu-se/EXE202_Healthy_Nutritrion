@@ -11,6 +11,7 @@ namespace HealthyNutritionApp.Application.Interfaces.Account
         Task EditProfileAsync(EditProfileDto editProfileDto);
         Task<long> GetTotalCountUsersAsync();
         Task<UserProfileDto> GetUserProfileAsync();
+        Task<UserProfileDto> GetUserProfileByIdAsync(string userId);
         Task<PaginatedResult<UserAccountDto>> GetUsersAsync(int pageIndex, int limit);
     }
 }
