@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using HealthyNutritionApp.Application.Dto.Account;
 using HealthyNutritionApp.Application.Dto.PaginatedResult;
 using HealthyNutritionApp.Application.Dto.Review;
 using HealthyNutritionApp.Application.Exceptions;
@@ -54,11 +55,57 @@ namespace HealthyNutritionApp.Infrastructure.Services.Review
 
             // Thực hiện truy vấn và chuyển đổi kết quả sang danh sách ReviewDto
             IEnumerable<Reviews> reviews = await query.ToListAsync() ?? throw new NotFoundCustomException("No reviews found");
-            IEnumerable<ReviewDto> reviewsDto = _mapper.Map<IEnumerable<ReviewDto>>(reviews);
+
+            // Get all user IDs from the reviews
+            List<string> userIds = reviews.Select(r => r.UserId).Distinct().ToList();
+
+            // Fetch all users with these IDs
+            List<Users> users = await _unitOfWork.GetCollection<Users>()
+                .Find(u => userIds.Contains(u.Id))
+                .ToListAsync();
+
+            // Create a dictionary for quick user lookup
+            Dictionary<string, Users> usersDictionary = users.ToDictionary(u => u.Id);
+
+            // Map reviews to ReviewWithUserDto
+            IEnumerable<ReviewDto> reviewsWithUserDto = reviews.Select(review =>
+            {
+                // Map the review to ReviewDto first
+                ReviewDto reviewDto = _mapper.Map<ReviewDto>(review);
+
+                // Create the ReviewWithUserDto
+                ReviewDto reviewWithUserDto = new()
+                {
+                    Id = reviewDto.Id,
+                    //UserId = reviewDto.UserId,
+                    ProductId = reviewDto.ProductId,
+                    Rating = reviewDto.Rating,
+                    Comment = reviewDto.Comment,
+                    CreatedAt = reviewDto.CreatedAt,
+                    UpdatedAt = reviewDto.UpdatedAt
+                };
+
+                // Add user information if available
+                if (usersDictionary.TryGetValue(review.UserId, out Users? user))
+                {
+                    UserProfileDto userProfileDto = new()
+                    {
+                        Id = user.Id,
+                        FullName = user.FullName,
+                        Email = user.Email,
+                        Image = user.Image,
+                        Role = user.Role,
+                    };
+
+                    reviewWithUserDto.User = userProfileDto;
+                }
+
+                return reviewWithUserDto;
+            });
 
             return new PaginatedResult<ReviewDto>
             {
-                Items = reviewsDto,
+                Items = reviewsWithUserDto,
                 TotalCount = totalCount,
             };
         }
@@ -132,10 +179,10 @@ namespace HealthyNutritionApp.Infrastructure.Services.Review
                 .Find(r => r.ProductId == createReviewDto.ProductId && r.UserId == createReviewDto.UserId)
                 .Project(r => r.Rating)
                 .FirstOrDefaultAsync();
-                //.AsQueryable()
-                //.Where(r => r.ProductId == createReviewDto.ProductId && r.UserId == createReviewDto.UserId)
-                //.Select(r => r.Rating)
-                //.FirstOrDefault();
+            //.AsQueryable()
+            //.Where(r => r.ProductId == createReviewDto.ProductId && r.UserId == createReviewDto.UserId)
+            //.Select(r => r.Rating)
+            //.FirstOrDefault();
 
             Reviews review = new()
             {
