@@ -13,14 +13,14 @@ namespace HealthyNutritionApp.Controllers.Blog
     {
         private readonly IBlogService _blogService = blogService;
 
-        [Authorize(Roles = "Admin"), HttpGet]
+        [AllowAnonymous, HttpGet]
         public async Task<IActionResult> GetBlogsAsync([FromQuery] BlogFilterDto blogFilterDto, [FromQuery] int pageIndex = 1, [FromQuery] int limit = 10)
         {
             var result = await _blogService.GetBlogsAsync(blogFilterDto, pageIndex, limit);
             return Ok(new { message = "Blogs retrieved successfully", result });
         }
 
-        [Authorize(Roles = "Admin"), HttpGet("{id}")]
+        [AllowAnonymous, HttpGet("{id}")]
         public async Task<IActionResult> GetBlogByIdAsync(string id)
         {
             var blog = await _blogService.GetBlogByIdAsync(id);
