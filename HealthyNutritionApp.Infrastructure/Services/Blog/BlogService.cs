@@ -12,7 +12,6 @@ using HealthyNutritionApp.Domain.Utils;
 using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -317,6 +316,14 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
                 Items = blogDtos,
                 TotalCount = totalCount,
             };
+        }
+
+        public async Task<IEnumerable<string>> GetSlugsAsync()
+        {
+            return await _unitOfWork.GetCollection<Blogs>()
+                .Find(_ => true)
+                .Project(b => b.Slug)
+                .ToListAsync();
         }
     }
 }

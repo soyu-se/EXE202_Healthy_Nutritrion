@@ -27,11 +27,18 @@ namespace HealthyNutritionApp.Controllers.Blog
             return Ok(new { message = $"Blog with ID {id} retrieved successfully", blog });
         }
 
-        [AllowAnonymous, HttpGet("slug")]
+        [AllowAnonymous, HttpGet("test/slug")]
         public IActionResult GetBlogBySlugAsync(string slug)
         {
             var blog = _blogService.CreateSlug(slug);
             return Ok(new { message = $"Blog with slug '{slug}' retrieved successfully", blog });
+        }
+
+        [AllowAnonymous, HttpGet("slugs")]
+        public async Task<IActionResult> GetSlugsAsync()
+        {
+            var blogs = await _blogService.GetSlugsAsync();
+            return Ok(new { message = "Blogs retrieved successfully", blogs });
         }
 
         [Authorize(Roles = "Admin"), HttpPost]
