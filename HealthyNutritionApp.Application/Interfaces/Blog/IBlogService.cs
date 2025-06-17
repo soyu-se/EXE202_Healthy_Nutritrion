@@ -11,6 +11,6 @@ namespace HealthyNutritionApp.Application.Interfaces.Blog
         Task<BlogDto> GetBlogByIdAsync(string id);
         Task<PaginatedResult<BlogDto>> GetBlogsAsync(BlogFilterDto blogFilterDto, int pageIndex = 1, int limit = 10);
         string CreateSlug(string text);
-        Task<IEnumerable<string>> GetSlugsAsync();
+        Task<IEnumerable<string>> GetTagsAsync();
     }
 }

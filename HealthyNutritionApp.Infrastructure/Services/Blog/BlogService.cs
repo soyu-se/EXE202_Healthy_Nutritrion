@@ -5,11 +5,13 @@ using HealthyNutritionApp.Application.Dto.PaginatedResult;
 using HealthyNutritionApp.Application.Exceptions;
 using HealthyNutritionApp.Application.Interfaces;
 using HealthyNutritionApp.Application.Interfaces.Blog;
+using HealthyNutritionApp.Application.Projections.Blog;
 using HealthyNutritionApp.Application.ThirdPartyServices.Cloudinary;
 using HealthyNutritionApp.Domain.Entities;
 using HealthyNutritionApp.Domain.Enums;
 using HealthyNutritionApp.Domain.Utils;
 using Microsoft.AspNetCore.Http;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using System.Text;
@@ -318,11 +320,13 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
             };
         }
 
-        public async Task<IEnumerable<string>> GetSlugsAsync()
+        public async Task<IEnumerable<string>> GetTagsAsync()
         {
+            // Return the result of the aggregation query
             return await _unitOfWork.GetCollection<Blogs>()
-                .Find(_ => true)
-                .Project(b => b.Slug)
+                .Aggregate()
+                .Unwind<Blogs, BlogProjection>(b => b.Tags)
+                .Project(b => b.Tags)
                 .ToListAsync();
         }
     }
