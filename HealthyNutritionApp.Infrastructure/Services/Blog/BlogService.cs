@@ -82,32 +82,59 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
             if (string.IsNullOrWhiteSpace(text))
                 return string.Empty;
 
-            // Remove diacritics (accents)
-            string normalizedString = text.Normalize(NormalizationForm.FormD);
-            StringBuilder stringBuilder = new();
-
-            foreach (char c in normalizedString)
+            // Chuyển các ký tự đặc biệt tiếng Việt thành không dấu (bao gồm Đ, đ)
+            Dictionary<char, char> vietnameseMap = new()
             {
-                UnicodeCategory unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
-                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
-                {
-                    stringBuilder.Append(c);
-                }
+                {'à','a'},{'á','a'},{'ạ','a'},{'ả','a'},{'ã','a'},
+                {'â','a'},{'ầ','a'},{'ấ','a'},{'ậ','a'},{'ẩ','a'},{'ẫ','a'},
+                {'ă','a'},{'ằ','a'},{'ắ','a'},{'ặ','a'},{'ẳ','a'},{'ẵ','a'},
+                {'è','e'},{'é','e'},{'ẹ','e'},{'ẻ','e'},{'ẽ','e'},
+                {'ê','e'},{'ề','e'},{'ế','e'},{'ệ','e'},{'ể','e'},{'ễ','e'},
+                {'ì','i'},{'í','i'},{'ị','i'},{'ỉ','i'},{'ĩ','i'},
+                {'ò','o'},{'ó','o'},{'ọ','o'},{'ỏ','o'},{'õ','o'},
+                {'ô','o'},{'ồ','o'},{'ố','o'},{'ộ','o'},{'ổ','o'},{'ỗ','o'},
+                {'ơ','o'},{'ờ','o'},{'ớ','o'},{'ợ','o'},{'ở','o'},{'ỡ','o'},
+                {'ù','u'},{'ú','u'},{'ụ','u'},{'ủ','u'},{'ũ','u'},
+                {'ư','u'},{'ừ','u'},{'ứ','u'},{'ự','u'},{'ử','u'},{'ữ','u'},
+                {'ỳ','y'},{'ý','y'},{'ỵ','y'},{'ỷ','y'},{'ỹ','y'},
+                {'đ','d'},
+                {'À','A'},{'Á','A'},{'Ạ','A'},{'Ả','A'},{'Ã','A'},
+                {'Â','A'},{'Ầ','A'},{'Ấ','A'},{'Ậ','A'},{'Ẩ','A'},{'Ẫ','A'},
+                {'Ă','A'},{'Ằ','A'},{'Ắ','A'},{'Ặ','A'},{'Ẳ','A'},{'Ẵ','A'},
+                {'È','E'},{'É','E'},{'Ẹ','E'},{'Ẻ','E'},{'Ẽ','E'},
+                {'Ê','E'},{'Ề','E'},{'Ế','E'},{'Ệ','E'},{'Ể','E'},{'Ễ','E'},
+                {'Ì','I'},{'Í','I'},{'Ị','I'},{'Ỉ','I'},{'Ĩ','I'},
+                {'Ò','O'},{'Ó','O'},{'Ọ','O'},{'Ỏ','O'},{'Õ','O'},
+                {'Ô','O'},{'Ồ','O'},{'Ố','O'},{'Ộ','O'},{'Ổ','O'},{'Ỗ','O'},
+                {'Ơ','O'},{'Ờ','O'},{'Ớ','O'},{'Ợ','O'},{'Ở','O'},{'Ỡ','O'},
+                {'Ù','U'},{'Ú','U'},{'Ụ','U'},{'Ủ','U'},{'Ũ','U'},
+                {'Ư','U'},{'Ừ','U'},{'Ứ','U'},{'Ự','U'},{'Ử','U'},{'Ữ','U'},
+                {'Ỳ','Y'},{'Ý','Y'},{'Ỵ','Y'},{'Ỷ','Y'},{'Ỹ','Y'},
+                {'Đ','D'}
+            };
+
+            StringBuilder sb = new();
+
+            foreach (char c in text)
+            {
+                if (vietnameseMap.ContainsKey(c))
+                    sb.Append(vietnameseMap[c]);
+                else
+                    sb.Append(c);
             }
 
-            // Convert to lowercase
-            string result = stringBuilder.ToString().Normalize(NormalizationForm.FormC).ToLowerInvariant();
+            string result = sb.ToString().ToLowerInvariant();
 
-            // Remove special characters
+            // Loại bỏ ký tự đặc biệt không phải chữ/số/dấu cách
             result = Regex.Replace(result, @"[^a-z0-9\s-]", string.Empty);
 
-            // Replace spaces with hyphens
+            // Thay khoảng trắng bằng dấu gạch ngang
             result = Regex.Replace(result, @"\s+", "-");
 
-            // Remove consecutive hyphens
+            // Loại bỏ dấu gạch ngang liên tiếp
             result = Regex.Replace(result, @"-+", "-");
 
-            // Remove leading and trailing hyphens
+            // Loại bỏ dấu gạch đầu/cuối
             result = result.Trim('-');
 
             return result;
@@ -129,7 +156,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
             {
                 // Add title update
                 updates.Add(updateBuilder.Set(b => b.Title, updateBlogDto.Title));
-                
+
                 // Generate new slug when title changes
                 newSlug = CreateSlug(updateBlogDto.Title);
 
@@ -143,7 +170,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
                     // Append a unique identifier to make the slug unique
                     newSlug = $"{newSlug}-{DateTime.Now.Ticks.ToString("x")}";
                 }
-                
+
                 // Add slug update
                 updates.Add(updateBuilder.Set(b => b.Slug, newSlug));
             }
@@ -153,12 +180,12 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
             {
                 updates.Add(updateBuilder.Set(b => b.Content, updateBlogDto.Content));
             }
-            
+
             if (updateBlogDto.Excerpt != null)
             {
                 updates.Add(updateBuilder.Set(b => b.Excerpt, updateBlogDto.Excerpt));
             }
-            
+
             if (updateBlogDto.Tags != null)
             {
                 updates.Add(updateBuilder.Set(b => b.Tags, updateBlogDto.Tags));
@@ -182,7 +209,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
             {
                 // Always update the UpdatedAt timestamp when changes are made
                 updates.Add(updateBuilder.Set(b => b.UpdatedAt, TimeControl.GetUtcPlus7Time()));
-                
+
                 UpdateDefinition<Blogs> updateDefinition = updateBuilder.Combine(updates);
 
                 await _unitOfWork.GetCollection<Blogs>()
@@ -238,8 +265,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
             // Kiểm tra nếu có bộ lọc tìm kiếm
             if (!string.IsNullOrEmpty(blogFilterDto.SearchTerm))
             {
-                query = query.Where(b => b.Title.Contains(blogFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase) ||
-                                         b.Content.Contains(blogFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase));
+                query = query.Where(b => b.Title.Contains(blogFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase));
             }
 
             // Lọc theo slug (nếu cần)
@@ -272,7 +298,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
             IEnumerable<Blogs> blogs = await query.ToListAsync();
             IEnumerable<BlogDto> blogDtos = _mapper.Map<IEnumerable<BlogDto>>(blogs);
 
-            if(!blogDtos.Any())
+            if (!blogDtos.Any())
             {
                 return new PaginatedResult<BlogDto>
                 {
@@ -282,9 +308,9 @@ namespace HealthyNutritionApp.Infrastructure.Services.Blog
             }
 
             long totalCount = await _unitOfWork.GetCollection<Blogs>()
-                .CountDocumentsAsync(b => (string.IsNullOrEmpty(blogFilterDto.SearchTerm) || b.Title.Contains(blogFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase) || b.Content.Contains(blogFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase)) &&
+                .CountDocumentsAsync(b => (string.IsNullOrEmpty(blogFilterDto.SearchTerm) || b.Title.Contains(blogFilterDto.SearchTerm, StringComparison.CurrentCultureIgnoreCase)) &&
                                   (string.IsNullOrEmpty(blogFilterDto.Slug) || b.Slug == blogFilterDto.Slug) &&
-                                  (!blogFilterDto.Tags.Any() || (b.Tags != null && b.Tags.Any(t => blogFilterDto.Tags.Contains(t)))));
+                                  (blogFilterDto.Tags != null || (b.Tags != null)));
 
             return new PaginatedResult<BlogDto>
             {
