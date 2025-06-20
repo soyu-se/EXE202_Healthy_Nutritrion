@@ -6,6 +6,7 @@ using HealthyNutritionApp.Application.Dto.Product;
 using HealthyNutritionApp.Application.Exceptions;
 using HealthyNutritionApp.Application.Interfaces;
 using HealthyNutritionApp.Application.Interfaces.Product;
+using HealthyNutritionApp.Application.Projections.Lookup.Product;
 using HealthyNutritionApp.Application.ThirdPartyServices.Cloudinary;
 using HealthyNutritionApp.Domain.Entities;
 using HealthyNutritionApp.Domain.Enums;
@@ -264,5 +265,25 @@ namespace HealthyNutritionApp.Infrastructure.Services.Product
         {
             await _unitOfWork.GetCollection<Products>().DeleteOneAsync(p => p.Id == id);
         }
+
+
+        #region Test Lookup
+        public async Task<ProductProjection> GetProductWithCategoryName(string id)
+        {
+            Task<ProductProjection> pipeline = _unitOfWork.GetCollection<Products>().Aggregate()
+                .Match(p => p.Id == id)
+                .Lookup<Products, Categories, ProductProjection>(
+                    _unitOfWork.GetCollection<Categories>(),
+                    p => p.CategoryIds,
+                    c => c.Id,
+                    dto => dto.Categories
+                ).As<ProductProjection>()
+                .FirstOrDefaultAsync();
+
+            return await pipeline;
+
+            //return await pipeline.FirstOrDefaultAsync();
+        }
+        #endregion
     }
 }

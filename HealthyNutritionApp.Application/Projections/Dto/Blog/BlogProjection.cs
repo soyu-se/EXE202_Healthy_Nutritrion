@@ -1,4 +1,4 @@
-﻿namespace HealthyNutritionApp.Application.Projections.Blog
+﻿namespace HealthyNutritionApp.Application.Projections.Dto.Blog
 {
     public record BlogProjection
     {

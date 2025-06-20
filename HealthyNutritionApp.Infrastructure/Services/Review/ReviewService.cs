@@ -167,7 +167,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Review
 
         public async Task<bool> CheckBoughtProduct(string userId, string productId)
         {
-            // Fix: Replace 'Products' with 'Items' as per the Orders class definition
+            // Fix: Replace 'Product' with 'Items' as per the Orders class definition
             long count = await _unitOfWork.GetCollection<Orders>()
                 .CountDocumentsAsync(o => o.UserId == userId && o.Items.Any(p => p.ProductId == productId) && o.Status == "PAID");
             return count > 0;

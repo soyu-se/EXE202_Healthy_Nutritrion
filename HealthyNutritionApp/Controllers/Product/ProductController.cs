@@ -17,7 +17,7 @@ namespace HealthyNutritionApp.Controllers.Product
         public async Task<IActionResult> GetProductsAsync([FromQuery] ProductFilterDto productFilterDto, [FromQuery] int pageIndex = 1, [FromQuery] int limit = 10)
         {
             var result = await _productService.GetProductsAsync(productFilterDto, pageIndex, limit);
-            return Ok(new { message = "Products retrieved successfully", result });
+            return Ok(new { message = "Product retrieved successfully", result });
         }
 
         [AllowAnonymous, HttpGet("{id}")]
@@ -50,6 +50,14 @@ namespace HealthyNutritionApp.Controllers.Product
             // Logic to delete a product by ID
             await _productService.DeleteProductAsync(id);
             return Ok(new { message = $"Product with ID {id} deleted successfully" });
+        }
+
+        [AllowAnonymous, HttpGet("with-category/{id}")]
+        public async Task<IActionResult> GetProductWithCategoryName(string id)
+        {
+            // Logic to get product with category name
+            var product = await _productService.GetProductWithCategoryName(id);
+            return Ok(new { message = $"Product with ID {id} and category name retrieved successfully", product });
         }
     }
 }
