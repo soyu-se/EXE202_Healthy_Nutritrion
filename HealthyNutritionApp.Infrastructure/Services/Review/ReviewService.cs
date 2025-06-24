@@ -175,8 +175,8 @@ namespace HealthyNutritionApp.Infrastructure.Services.Review
 
         public async Task PostReviewAsync(CreateReviewDto createReviewDto)
         {
-            double rating = await _unitOfWork.GetCollection<Reviews>()
-                .Find(r => r.ProductId == createReviewDto.ProductId && r.UserId == createReviewDto.UserId)
+            double rating = await _unitOfWork.GetCollection<Products>()
+                .Find(r => r.Id == createReviewDto.ProductId)
                 .Project(r => r.Rating)
                 .FirstOrDefaultAsync();
             //.AsQueryable()
