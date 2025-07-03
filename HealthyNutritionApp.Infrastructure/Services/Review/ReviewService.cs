@@ -179,11 +179,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Review
                 .Find(r => r.Id == createReviewDto.ProductId)
                 .Project(r => r.Rating)
                 .FirstOrDefaultAsync();
-            //.AsQueryable()
-            //.Where(r => r.ProductId == createReviewDto.ProductId && r.UserId == createReviewDto.UserId)
-            //.Select(r => r.Rating)
-            //.FirstOrDefault();
-
+            
             Reviews review = new()
             {
                 UserId = createReviewDto.UserId,
@@ -198,7 +194,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Review
                 .CountDocumentsAsync(r => r.ProductId == createReviewDto.ProductId);
 
             UpdateDefinition<Products> updateDefinition = Builders<Products>.Update
-                .Set(p => p.Rating, (rating + createReviewDto.Rating) / (reviewCount + 1))
+                .Set(p => p.Rating, (rating * reviewCount + createReviewDto.Rating) / (reviewCount + 1))
                 .Set(p => p.ReviewCount, reviewCount + 1)
                 .Set(p => p.UpdatedAt, TimeControl.GetUtcPlus7Time());
 
