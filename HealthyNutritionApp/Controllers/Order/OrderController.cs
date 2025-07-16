@@ -1,4 +1,5 @@
-﻿using HealthyNutritionApp.Application.Interfaces.Order;
+﻿using HealthyNutritionApp.Application.Dto.Order;
+using HealthyNutritionApp.Application.Interfaces.Order;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,7 @@ namespace HealthyNutritionApp.Controllers.Order
         /// <param name="code"></param>
         /// <returns></returns>
         [Authorize(Roles = "Admin, User"), HttpGet("{code}")]
-        public async Task<IActionResult> GetOrderInformation(int code) 
+        public async Task<IActionResult> GetOrderInformation(int code)
         {
             var result = await _orderServices.GetOrderDetails(code);
             return Ok(result);
@@ -51,6 +52,13 @@ namespace HealthyNutritionApp.Controllers.Order
         {
             var result = await _orderServices.GetUserOrderList();
             return Ok(result);
+        }
+
+        [Authorize(Roles = "Admin"), HttpPut("update-status")]
+        public async Task<IActionResult> UpdateOrderStatus([FromBody] OrderStatusUpdateRequest request)
+        {
+            await _orderServices.UpdateOrderStatus(request);
+            return Ok(new { message = "Order status updated successfully." });
         }
     }
 }

@@ -19,6 +19,8 @@ namespace HealthyNutritionApp.Domain.Entities
         public decimal TotalAmount { get; set; }
 
         public string Status { get; set; }
+
+        public string Address { get; set; }
     }
 
     public class OrderItems

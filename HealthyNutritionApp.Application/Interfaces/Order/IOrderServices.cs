@@ -8,5 +8,6 @@ namespace HealthyNutritionApp.Application.Interfaces.Order
         Task<OrderInformationResponse> GetOrderDetails(int orderCode);
         Task<PaginatedResult<OrderListResponse>> GetOrderList(int pageIndex = 1, int limit = 10);
         Task<PaginatedResult<OrderListResponse>> GetUserOrderList();
+        Task UpdateOrderStatus(OrderStatusUpdateRequest request);
     }
 }

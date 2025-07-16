@@ -93,5 +93,16 @@ namespace HealthyNutritionApp.Infrastructure.Services.Order
             };
         }
 
+        public async Task UpdateOrderStatus(OrderStatusUpdateRequest request)
+        {
+            Orders order = await _unitOfWork.GetCollection<Orders>()
+                .Find(o => o.PayOSOrderCode == request.OrderCode)
+                .FirstOrDefaultAsync() ?? throw new NotFoundCustomException("Order is not exist!");
+
+            FilterDefinition<Orders> filter = Builders<Orders>.Filter.Eq(o => o.PayOSOrderCode, request.OrderCode);
+            UpdateDefinition<Orders> update = Builders<Orders>.Update.Set(o => o.Status, request.Status);
+            UpdateResult result = await _unitOfWork.GetCollection<Orders>().UpdateOneAsync(filter, update);
+        }
+
     }
 }

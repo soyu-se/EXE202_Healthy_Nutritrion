@@ -70,15 +70,22 @@ namespace HealthyNutritionApp.Infrastructure.Services.Payment
                     expiredAt: expiredAt
             );
 
+            string userId = _contextAccessor.HttpContext?.User.FindFirst("Id")?.Value ?? throw new UnauthorizedCustomException("Your session is limit, please log in again to continue!");
+
+            Users user = await _unitOfWork.GetCollection<Users>().Find(u => u.Id == userId).FirstOrDefaultAsync()
+                                 ?? throw new NotFoundCustomException("Cannot find the user with this ID!");
+
             Orders order = _mapper.Map<OrderInformationRequest, Orders>(request.OrderInformation);
 
-            order.UserId = _contextAccessor.HttpContext?.User.FindFirst("Id")?.Value ?? throw new UnauthorizedCustomException("Your session is limit, please log in again to continue!");
+            order.UserId = userId;
 
             order.TotalAmount = cartAmount;
 
             order.PayOSOrderCode = orderCode;  
 
             order.Status = "PENDING";
+
+            order.Address = user.Address;
 
             await _unitOfWork.GetCollection<Orders>().InsertOneAsync(order);
 
@@ -114,7 +121,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Payment
             //00 la thanh cong; 01 la that bai do sai tham so
             if (webhookType.success)
             {
-                updateDefinition = Builders<Orders>.Update.Set(o => o.Status, "PAID")
+                updateDefinition = Builders<Orders>.Update.Set(o => o.Status, "PENDING")
                                                           .Set(o => o.TotalAmount, data.amount);
                 await _unitOfWork.GetCollection<Orders>().UpdateOneAsync(o => o.PayOSOrderCode == data.orderCode, updateDefinition);
                 Log.Information("Order {OrderId} paid successfully at {TimeNow}", data.orderCode, DateTime.Now);
@@ -125,7 +132,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Payment
                     PaymentMethod = "Pay OS",
                     BankAccountNumber = data.accountNumber,
                     OrderCode = data.orderCode,
-                    PaymentStatus = "PAID",
+                    PaymentStatus = "PENDING",
                     CreatedAt = DateTime.Parse(data.transactionDateTime)
                 };
                 await _unitOfWork.GetCollection<Transactions>().InsertOneAsync(transaction);
