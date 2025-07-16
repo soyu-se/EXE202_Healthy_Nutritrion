@@ -113,8 +113,6 @@ namespace HealthyNutritionApp.Infrastructure.Services.Payment
         {
             WebhookData data = _payOs.verifyPaymentWebhookData(webhookType);
 
-            Log.Information("INFORMATION FROM PAYOS: {OrderCode} \n {Amount} \n {Description}\n {a}\n {b}\n {d}\n {c}\n {e}\n {f}\n {g}\n {h}\n {i}\n {j}\n {Description}\n {k}\n {l}", webhookType.code, webhookType.data.amount, webhookType.data.description, webhookType.data.accountNumber, webhookType.data.reference, webhookType.data.transactionDateTime, webhookType.data.currency, webhookType.data.paymentLinkId, webhookType.data.code, webhookType.data.desc, webhookType.data.counterAccountBankId, webhookType.data.counterAccountBankName, webhookType.data.counterAccountName, webhookType.data.counterAccountNumber, webhookType.data.virtualAccountName , webhookType.data.virtualAccountNumber);
-
             //Orders order = await _unitOfWork.GetCollection<Orders>().Find(p => p.PayOSOrderCode == data.orderCode).FirstOrDefaultAsync() ?? throw new NotFoundCustomException("Not found any order by this ID.");
 
             UpdateDefinition<Orders> updateDefinition;
@@ -132,7 +130,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Payment
                     PaymentMethod = "Pay OS",
                     BankAccountNumber = data.accountNumber,
                     OrderCode = data.orderCode,
-                    PaymentStatus = "PENDING",
+                    PaymentStatus = "PAID",
                     CreatedAt = DateTime.Parse(data.transactionDateTime)
                 };
                 await _unitOfWork.GetCollection<Transactions>().InsertOneAsync(transaction);

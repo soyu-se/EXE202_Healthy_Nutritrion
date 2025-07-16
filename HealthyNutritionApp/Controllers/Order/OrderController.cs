@@ -37,9 +37,9 @@ namespace HealthyNutritionApp.Controllers.Order
         /// <param name="limit"></param>
         /// <returns></returns>
         [Authorize(Roles = "Admin"), HttpGet()]
-        public async Task<IActionResult> GetAllOrders([FromQuery] int pageIndex = 1, [FromQuery] int limit = 10)
+        public async Task<IActionResult> GetAllOrders([FromQuery] string status, [FromQuery] int pageIndex = 1, [FromQuery] int limit = 10)
         {
-            var result = await _orderServices.GetOrderList(pageIndex, limit);
+            var result = await _orderServices.GetOrderList(status, pageIndex, limit);
             return Ok(result);
         }
 

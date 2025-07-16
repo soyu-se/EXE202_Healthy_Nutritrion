@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Linq.Expressions;
+using AutoMapper;
 using CloudinaryDotNet.Actions;
 using HealthyNutritionApp.Application.Dto.Order;
 using HealthyNutritionApp.Application.Dto.PaginatedResult;
@@ -50,16 +51,22 @@ namespace HealthyNutritionApp.Infrastructure.Services.Order
             return response;
         }
 
-        public async Task<PaginatedResult<OrderListResponse>> GetOrderList(int pageIndex = 1, int limit = 10)
+        public async Task<PaginatedResult<OrderListResponse>> GetOrderList(string status, int pageIndex = 1, int limit = 10)
         {
             IQueryable<Orders> query = _unitOfWork.GetCollection<Orders>().AsQueryable();
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(o => o.Status == status);
+            }
 
             query = query.Skip((pageIndex - 1) * limit).Take(limit);
 
             IEnumerable<Orders> orders = await query.ToListAsync();
             IEnumerable<OrderListResponse> orderResponseList = _mapper.Map<IEnumerable<OrderListResponse>>(orders);
 
-            long totalCount = orderResponseList.Count();
+            Expression<Func<Orders, bool>> filterExpression = o => string.IsNullOrEmpty(status) || o.Status == status;
+
+            long totalCount = _unitOfWork.GetCollection<Orders>().CountDocuments(filterExpression);
 
             return new PaginatedResult<OrderListResponse>
             {
@@ -80,7 +87,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Order
             IEnumerable<Orders> orders = await query.ToListAsync();
             IEnumerable<OrderListResponse> orderResponseList = _mapper.Map<IEnumerable<OrderListResponse>>(orders);
 
-            long totalCount = orderResponseList.Count();
+            long totalCount = _unitOfWork.GetCollection<Orders>().CountDocuments(FilterDefinition<Orders>.Empty);
 
             return new PaginatedResult<OrderListResponse>
             {
