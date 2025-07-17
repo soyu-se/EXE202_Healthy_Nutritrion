@@ -169,7 +169,7 @@ namespace HealthyNutritionApp.Infrastructure.Services.Review
         {
             // Fix: Replace 'Product' with 'Items' as per the Orders class definition
             long count = await _unitOfWork.GetCollection<Orders>()
-                .CountDocumentsAsync(o => o.UserId == userId && o.Items.Any(p => p.ProductId == productId) && o.Status == "PAID");
+                .CountDocumentsAsync(o => o.UserId == userId && o.Items.Any(p => p.ProductId == productId) && o.Status == "SHIPPED");
             return count > 0;
         }
 
