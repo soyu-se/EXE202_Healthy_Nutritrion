@@ -131,7 +131,11 @@ namespace HealthyNutritionApp.Infrastructure.Services.Payment
                     BankAccountNumber = data.accountNumber,
                     OrderCode = data.orderCode,
                     PaymentStatus = "PAID",
-                    CreatedAt = DateTime.Parse(data.transactionDateTime)
+                    CreatedAt = DateTime.Parse(data.transactionDateTime),
+                    CounterAccountName = data.counterAccountName,
+                    CounterAccountNumber = data.counterAccountNumber,
+                    CounterBankName = data.counterAccountBankName,
+                    CounterAccountBankId = data.counterAccountBankId
                 };
                 await _unitOfWork.GetCollection<Transactions>().InsertOneAsync(transaction);
                 return;

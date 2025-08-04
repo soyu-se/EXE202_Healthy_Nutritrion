@@ -17,6 +17,11 @@ namespace HealthyNutritionApp.Domain.Entities
         public string PaymentMethod { get; set; }
         public string PaymentStatus { get; set; }
 
+        public string CounterAccountNumber { get; set; }
+        public string CounterAccountName { get; set; }
+        public string CounterBankName { get; set; }
+        public string CounterAccountBankId { get; set; }
+
         [BsonRepresentation(BsonType.DateTime)]
         public DateTime CreatedAt { get; set; }
     }
