@@ -62,7 +62,19 @@ namespace HealthyNutritionApp.Infrastructure.Services.Order
             query = query.Skip((pageIndex - 1) * limit).Take(limit);
 
             IEnumerable<Orders> orders = await query.ToListAsync();
+
+            // Lấy field CreatedAt từ Transaction
+
             IEnumerable<OrderListResponse> orderResponseList = _mapper.Map<IEnumerable<OrderListResponse>>(orders);
+            // Map CreatedAt to CreatedAt in OrderListResponse
+            foreach (OrderListResponse order in orderResponseList)
+            {
+                Transactions? transaction = await _unitOfWork.GetCollection<Transactions>().Find(t => t.OrderCode == order.OrderCode).FirstOrDefaultAsync();
+                if (transaction != null)
+                {
+                    order.CreatedAt = transaction.CreatedAt;
+                }
+            }
 
             Expression<Func<Orders, bool>> filterExpression = o => string.IsNullOrEmpty(status) || o.Status == status;
 

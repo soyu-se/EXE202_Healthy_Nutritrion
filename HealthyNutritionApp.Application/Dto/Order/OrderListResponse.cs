@@ -9,6 +9,7 @@ namespace HealthyNutritionApp.Application.Dto.Order
         public int OrderCode { get; set; }
         public decimal TotalAmount { get; set; }
         public string Status { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         public void Mapping(Profile profile)
         {
